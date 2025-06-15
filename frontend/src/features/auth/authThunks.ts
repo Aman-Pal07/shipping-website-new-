@@ -30,8 +30,12 @@ export const registerUser = createAsyncThunk<AuthResponse, RegisterData>(
       formData.append("lastName", userData.lastName);
       formData.append("email", userData.email);
       formData.append("password", userData.password);
-      formData.append("documentType", userData.documentType);
-      formData.append("documentImage", userData.documentImage);
+      
+      // Handle documents array
+      userData.documents.forEach((doc, index) => {
+        formData.append(`documents[${index}][documentType]`, doc.documentType);
+        formData.append(`documents[${index}][file]`, doc.file);
+      });
 
       const response = await authAPI.register(formData);
       localStorage.setItem("token", response.token);

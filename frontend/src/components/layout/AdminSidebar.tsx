@@ -66,8 +66,6 @@ export default function AdminSidebar({
   // Get user data from auth with fallback
   const { user, logout } = useAuth();
   // Safely access user properties with type assertion
-  const userDisplayName =
-    (user as { name?: string } | null)?.name || "Admin User";
   const userEmail = user?.email || "admin@example.com";
   const [ordersOpen, setOrdersOpen] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -285,13 +283,13 @@ export default function AdminSidebar({
               <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-medium">
                 {user?.firstName && user?.lastName
                   ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase()
-                  : user?.email[0]?.toUpperCase() || 'U'}
+                  : user?.email[0]?.toUpperCase() || "U"}
               </AvatarFallback>
             </Avatar>
             {!isCollapsed && (
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-900 truncate">
-                  {userDisplayName}
+                  {user?.firstName ?? "Anonymous"}
                 </p>
                 <p className="text-xs text-gray-500 truncate">{userEmail}</p>
               </div>

@@ -33,6 +33,7 @@ import {
 interface User {
   username: string;
   email: string;
+  firstName: string;
 }
 
 interface AuthContext {
@@ -337,7 +338,7 @@ export default function Sidebar({ isCollapsed = false }: SidebarProps) {
             <>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-gray-900 truncate">
-                  {user?.username ?? "Anonymous"}
+                  {user?.firstName ?? "Anonymous"}
                 </p>
                 <p className="text-xs text-gray-500 truncate font-medium">
                   {user?.email ?? "No email"}
