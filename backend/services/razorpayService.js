@@ -1,16 +1,6 @@
-// import razorpay from "../config/razorpay";
-// import crypto from "crypto";
-
 const razorpay = require("../config/razorpay");
 const crypto = require("crypto");
 
-/**
- * Create a new Razorpay order
- * @param amount Amount in INR (rupees, not paise)
- * @param receipt Optional receipt ID
- * @param notes Optional notes for the order
- * @returns Promise with the created order
- */
 const createOrder = async (amount, receipt = "", notes = {}) => {
   if (!razorpay) {
     // Return mock order for development
@@ -35,13 +25,6 @@ const createOrder = async (amount, receipt = "", notes = {}) => {
   });
 };
 
-/**
- * Verify Razorpay payment signature
- * @param orderId Razorpay order ID
- * @param paymentId Razorpay payment ID
- * @param signature Razorpay signature from the client
- * @returns Boolean indicating if the signature is valid
- */
 const verifyPaymentSignature = (orderId, paymentId, signature) => {
   if (!razorpay) {
     // For development, always return true
@@ -91,11 +74,6 @@ const verifyPaymentSignature = (orderId, paymentId, signature) => {
   return expectedSignature1 === signature || expectedSignature2 === signature;
 };
 
-/**
- * Fetch payment details by payment ID
- * @param paymentId Razorpay payment ID
- * @returns Payment details
- */
 const fetchPaymentById = async (paymentId) => {
   if (!razorpay) {
     // Return mock payment for development
@@ -113,12 +91,6 @@ const fetchPaymentById = async (paymentId) => {
   return await razorpay.payments.fetch(paymentId);
 };
 
-/**
- * Process webhook event from Razorpay
- * @param body The request body from Razorpay webhook
- * @param signature The X-Razorpay-Signature header
- * @returns The parsed event if signature is valid, throws error otherwise
- */
 const processWebhookEvent = (body, signature) => {
   if (!razorpay) {
     // For development, return the parsed body

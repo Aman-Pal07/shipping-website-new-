@@ -44,11 +44,7 @@ if (process.env.NODE_ENV === "production") {
 }
 
 // CORS Configuration - MOVED UP BEFORE OTHER MIDDLEWARE
-const allowedOrigins = [
-  "http://localhost:3000",
-  "http://localhost:5173",
-  "https://parcelup.in",
-];
+const allowedOrigins = ["http://localhost:5173"];
 
 const corsOptions = {
   origin: function (origin, callback) {

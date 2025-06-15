@@ -56,7 +56,7 @@ export const registerUser = createAsyncThunk<AuthResponse, RegisterData>(
       formData.append('documentTypes', JSON.stringify(documentTypes));
       
       // Add document files
-      userData.documents.forEach((doc, index) => {
+      userData.documents.forEach((doc) => {
         if (doc.file) {
           formData.append('documents', doc.file);
         }
@@ -160,6 +160,31 @@ export const resendVerificationCode = createAsyncThunk<void, string>(
   }
 );
 
+export const forgotPassword = createAsyncThunk<string, string>(
+  'auth/forgotPassword',
+  async (email, { rejectWithValue }) => {
+    try {
+      const response = await authAPI.forgotPassword(email);
+      return response.message || 'If your email is registered, you will receive a password reset link.';
+    } catch (error: any) {
+      // Don't reveal if the email exists or not for security
+      return rejectWithValue('If your email is registered, you will receive a password reset link.');
+    }
+  }
+);
+
+export const resetPassword = createAsyncThunk<{ message: string }, { token: string; password: string }>(
+  'auth/resetPassword',
+  async ({ token, password }, { rejectWithValue }) => {
+    try {
+      const response = await authAPI.resetPassword(token, password);
+      return { message: response.message || 'Password has been reset successfully.' };
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to reset password. The link may have expired.');
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -187,6 +212,34 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // Forgot Password
+      .addCase(forgotPassword.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(forgotPassword.fulfilled, (state) => {
+        state.isLoading = false;
+        state.error = null;
+      })
+      .addCase(forgotPassword.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+
+      // Reset Password
+      .addCase(resetPassword.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(resetPassword.fulfilled, (state) => {
+        state.isLoading = false;
+        state.error = null;
+      })
+      .addCase(resetPassword.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+
       // Login
       .addCase(loginUser.pending, (state) => {
         state.isLoading = true;

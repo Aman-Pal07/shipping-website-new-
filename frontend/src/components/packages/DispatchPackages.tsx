@@ -177,7 +177,7 @@ export default function DispatchPackages() {
                                 {tx.weightUnit || pkg.weightUnit || "kg"}
                               </span>
                             ) : (
-                              <span className="text-gray-400">-</span>
+                              <span className="text-blue-600 font-medium">Processing</span>
                             )}
                           </div>
                         </TableCell>
@@ -189,7 +189,7 @@ export default function DispatchPackages() {
                               {tx.dimensions.height} {tx.dimensions.unit}
                             </div>
                           ) : (
-                            <span className="text-sm text-gray-400">-</span>
+                            <span className="text-sm text-blue-600 font-medium">Processing</span>
                           )}
                         </TableCell>
 
@@ -201,7 +201,7 @@ export default function DispatchPackages() {
                               {tx.volumetricWeightUnit || "kg"}
                             </div>
                           ) : (
-                            <span className="text-sm text-gray-400">-</span>
+                            <span className="text-sm text-blue-600 font-medium">Processing</span>
                           )}
                         </TableCell>
 

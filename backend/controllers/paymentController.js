@@ -12,7 +12,7 @@
 const Transaction = require("../models/Transaction");
 const User = require("../models/User");
 const Package = require("../models/Package");
-const CompletedTransaction = require("../models/Transaction");
+const CompletedTransaction = require("../models/CompletedTransaction");
 const {
   createOrder,
   verifyPaymentSignature,
@@ -213,10 +213,10 @@ const verifyRazorpayPayment = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to verify payment",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };
-
 /**
  * Handle Razorpay webhook events
  * @route POST /api/payments/webhook
@@ -660,14 +660,14 @@ const getTransactionOrderDetails = async (req, res) => {
 };
 
 module.exports = {
-  getRazorpayKey,
   createRazorpayOrder,
   verifyRazorpayPayment,
-  handleWebhook,
-  getUserTransactions,
-  getAllTransactions,
+  getRazorpayKey,
   createTransaction,
   updateTransaction,
+  getUserTransactions,
+  getAllTransactions,
   getPendingTransactionForPackage,
   getTransactionOrderDetails,
+  handleWebhook,
 };

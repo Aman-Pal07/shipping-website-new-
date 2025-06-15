@@ -95,9 +95,48 @@ const sendEmailUpdateVerification = async (email, code) => {
   await sendEmail({ to: email, subject, text, html });
 };
 
+/**
+ * Send a password reset email to a user
+ * @param {Object} options - Options containing user email, name, and reset URL
+ * @param {string} options.email - User's email address
+ * @param {string} options.name - User's full name
+ * @param {string} options.resetUrl - Password reset URL with token
+ */
+const sendPasswordResetEmail = async ({ email, name, resetUrl }) => {
+  const subject = "Password Reset Request";
+  const text = `Hello ${name},\n\nYou are receiving this email because you (or someone else) has requested a password reset for your account.\n\nPlease click on the following link to reset your password:\n${resetUrl}\n\nThis link will expire in 10 minutes.\n\nIf you did not request this, please ignore this email and your password will remain unchanged.`;
+  
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; line-height: 1.6;">
+      <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px;">
+        <h2 style="color: #4a4a4a; margin-top: 0;">Password Reset Request</h2>
+        <p>Hello ${name},</p>
+        <p>You are receiving this email because you (or someone else) has requested a password reset for your account.</p>
+        <p>Please click the button below to reset your password:</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${resetUrl}" style="background-color: #4CAF50; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">
+            Reset Password
+          </a>
+        </div>
+        <p>Or copy and paste this link into your browser:</p>
+        <p style="word-break: break-all; color: #0066cc;">${resetUrl}</p>
+        <p><strong>This link will expire in 10 minutes.</strong></p>
+        <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>
+        <hr style="border: none; border-top: 1px solid #eaeaea; margin: 20px 0;">
+        <p style="font-size: 12px; color: #666;">
+          This is an automated message, please do not reply to this email.
+        </p>
+      </div>
+    </div>
+  `;
+
+  await sendEmail({ to: email, subject, text, html });
+};
+
 module.exports = {
   sendEmail,
   sendVerificationEmail,
   sendEmailUpdateVerification,
+  sendPasswordResetEmail,
   generateVerificationCode,
 };

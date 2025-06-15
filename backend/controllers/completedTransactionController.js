@@ -308,7 +308,7 @@ const updateAdminTrackingId = asyncHandler(async (req, res) => {
     notes,
   });
 
-  // Create update object
+  // Create update objecta
   const updateObj = {
     $set: {
       adminTrackingId: updateData.adminTrackingId,
@@ -339,7 +339,6 @@ const updateAdminTrackingId = asyncHandler(async (req, res) => {
 
   // Now fetch the updated document with populated transactions
   const updatedTransaction = await CompletedTransaction.findById(id)
-    .selectById(id)
     .select("+packageStatus")
     .populate("userId", "firstName id lastName email")
     .populate({

@@ -21,6 +21,8 @@ import NotFound from "../pages/public/NotFound";
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
 import EmailVerification from "../pages/auth/EmailVerification";
+import ForgotPassword from "../pages/auth/ForgotPassword";
+import ResetPassword from "../pages/auth/ResetPassword";
 
 // Admin Pages
 import AdminOverview from "../pages/admin/Overview";
@@ -73,6 +75,8 @@ const AppRoutes = () => {
         }
       />
       <Route path="/verify-email" element={<EmailVerification />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password/:resetToken" element={<ResetPassword />} />
       <Route path="/" element={<Home />} />
 
       {/* Admin Routes - Outside MainLayout to have separate admin layout */}

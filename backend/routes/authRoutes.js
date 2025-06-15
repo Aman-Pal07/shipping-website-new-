@@ -9,7 +9,9 @@ const {
   logoutUser,
   upload,
   requestEmailUpdate,
-  verifyEmailUpdate
+  verifyEmailUpdate,
+  forgotPassword,
+  resetPassword
 } = require('../controllers/authController');
 
 const router = express.Router();
@@ -44,5 +46,11 @@ router.post("/request-email-update", authenticateToken, requestEmailUpdate);
 
 // Verify email update with OTP
 router.post("/verify-email-update", authenticateToken, verifyEmailUpdate);
+
+// Forgot password - Send reset link
+router.post("/forgot-password", forgotPassword);
+
+// Reset password with token
+router.put("/reset-password/:resetToken", resetPassword);
 
 module.exports = router;

@@ -6,8 +6,10 @@ const {
   generateVerificationCode,
   sendVerificationEmail,
   sendEmailUpdateVerification,
+  sendPasswordResetEmail,
 } = require("../utils/sendEmail");
 const { uploadToCloudinary } = require("../utils/cloudinary");
+const crypto = require("crypto");
 
 // Configure multer for file upload
 const storage = multer.memoryStorage();
@@ -28,11 +30,11 @@ const upload = multer({
  * @route POST /api/auth/register
  */
 const registerUser = asyncHandler(async (req, res) => {
-  console.log('=== Registration Request Received ===');
-  console.log('Headers:', JSON.stringify(req.headers, null, 2));
-  console.log('Body:', JSON.stringify(req.body, null, 2));
-  console.log('Files:', req.files ? Object.keys(req.files) : 'No files');
-  
+  console.log("=== Registration Request Received ===");
+  console.log("Headers:", JSON.stringify(req.headers, null, 2));
+  console.log("Body:", JSON.stringify(req.body, null, 2));
+  console.log("Files:", req.files ? Object.keys(req.files) : "No files");
+
   try {
     console.log("Request body:", req.body);
     console.log("Request file:", req.file);
@@ -215,10 +217,10 @@ const registerUser = asyncHandler(async (req, res) => {
       const uploadedDocuments = [];
 
       if (!req.files || !req.files.documents) {
-        console.error('No files were uploaded');
+        console.error("No files were uploaded");
         return res.status(400).json({
           success: false,
-          message: 'No documents were uploaded. Please upload 1-2 documents.',
+          message: "No documents were uploaded. Please upload 1-2 documents.",
         });
       }
 
@@ -246,9 +248,10 @@ const registerUser = asyncHandler(async (req, res) => {
           console.error(`Document upload failed: ${errorMessage}`, error.stack);
           return res.status(500).json({
             success: false,
-            message: 'Document upload failed',
+            message: "Document upload failed",
             error: errorMessage,
-            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+            stack:
+              process.env.NODE_ENV === "development" ? error.stack : undefined,
           });
         }
       }
@@ -688,6 +691,136 @@ const logoutUser = asyncHandler(async (req, res) => {
   res.status(200).json({ message: "Logged out successfully" });
 });
 
+/**
+ * @route POST /api/auth/forgot-password
+ * @desc Forgot password - Send reset password email
+ * @access Public
+ */
+const forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    res.status(400);
+    throw new Error("Please provide an email");
+  }
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      // For security, don't reveal if the email exists or not
+      return res.status(200).json({
+        success: true,
+        message:
+          "If your email is registered, you will receive a password reset link",
+      });
+    }
+
+    // Generate reset token
+    const resetToken = crypto.randomBytes(20).toString("hex");
+
+    // Hash token and set to resetPasswordToken field
+    user.resetPasswordToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+
+    // Set expire (10 minutes from now)
+    user.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+    await user.save({ validateBeforeSave: false });
+
+    // Create reset URL
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+
+    try {
+      await sendPasswordResetEmail({
+        email: user.email,
+        name: `${user.firstName} ${user.lastName}`,
+        resetUrl,
+      });
+
+      res.status(200).json({
+        success: true,
+        message: "Password reset email sent",
+      });
+    } catch (error) {
+      console.error("Error sending email:", error);
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpire = undefined;
+      await user.save({ validateBeforeSave: false });
+
+      res.status(500);
+      throw new Error("Email could not be sent");
+    }
+  } catch (error) {
+    console.error("Error in forgotPassword:", error);
+    res.status(500);
+    throw new Error("Server error");
+  }
+});
+
+/**
+ * @route PUT /api/auth/reset-password/:resetToken
+ * @desc Reset password
+ * @access Public
+ */
+const resetPassword = asyncHandler(async (req, res) => {
+  try {
+    // Get hashed token
+    const resetPasswordToken = crypto
+      .createHash("sha256")
+      .update(req.params.resetToken)
+      .digest("hex");
+
+    const user = await User.findOne({
+      resetPasswordToken,
+      resetPasswordExpire: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      res.status(400);
+      throw new Error("Invalid or expired reset token");
+    }
+
+    // Set new password
+    user.password = req.body.password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save();
+
+    // Generate token
+    const token = user.generateAuthToken();
+
+    // Create HTTP-only cookie with token
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Password updated successfully",
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        isVerified: user.isVerified,
+      },
+    });
+  } catch (error) {
+    console.error("Error in resetPassword:", error);
+    res.status(500);
+    throw new Error("Server error");
+  }
+});
+
 module.exports = {
   upload,
   registerUser,
@@ -698,4 +831,6 @@ module.exports = {
   verifyTwoFactor,
   getCurrentUser,
   logoutUser,
+  forgotPassword,
+  resetPassword,
 };

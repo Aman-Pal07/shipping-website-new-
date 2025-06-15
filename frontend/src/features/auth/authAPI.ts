@@ -30,6 +30,14 @@ export interface VerifyEmailResponse extends User {
   message?: string;
 }
 
+export interface ForgotPasswordData {
+  email: string;
+}
+
+export interface ResetPasswordData {
+  password: string;
+}
+
 export interface AuthResponse {
   user: User;
   token: string;
@@ -119,5 +127,17 @@ export const authAPI = {
   // Resend verification code
   resendVerificationCode: async (email: string): Promise<void> => {
     await api.post("/auth/resend-verification", { email });
+  },
+
+  // Forgot password - Request password reset link
+  forgotPassword: async (email: string): Promise<{ message: string }> => {
+    const response = await api.post("/auth/forgot-password", { email });
+    return response.data;
+  },
+
+  // Reset password with token
+  resetPassword: async (token: string, password: string): Promise<{ message: string }> => {
+    const response = await api.put(`/auth/reset-password/${token}`, { password });
+    return response.data;
   },
 };
