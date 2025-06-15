@@ -149,9 +149,17 @@ connectDB();
 
 const PORT = process.env.PORT || 3000;
 
-// Body parsing Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Initialize middleware
+// First, add raw body parsing for webhooks
+app.use('/api/payments/webhook', express.raw({ type: 'application/json' }), (req, res, next) => {
+  // Store the raw body for webhook verification
+  req.rawBody = req.body;
+  next();
+});
+
+// Then parse JSON and URL-encoded bodies for other routes
+app.use(express.json()); // Parse JSON bodies
+app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 
 // Session configuration
 app.use(

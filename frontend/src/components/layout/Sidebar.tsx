@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "../../lib/utils";
 import { useAuth } from "../../hooks/useAuth";
@@ -22,6 +22,8 @@ import {
   Clock,
   Plane,
   CheckCircle,
+  Menu,
+  X,
 } from "lucide-react";
 import {
   Collapsible,
@@ -65,11 +67,47 @@ interface SidebarProps {
   onToggle?: () => void;
 }
 
-export default function Sidebar({ isCollapsed = false }: SidebarProps) {
+export default function Sidebar({
+  isCollapsed = false,
+  onToggle,
+}: SidebarProps) {
   const location = useLocation();
   const { user, logout, isAdmin } = useAuth() as AuthContext;
   const [ordersOpen, setOrdersOpen] = useState<boolean>(true);
   const [packagesOpen, setPackagesOpen] = useState<boolean>(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+  const [isTablet, setIsTablet] = useState<boolean>(false);
+
+  // Check screen size and update responsive states
+  useEffect(() => {
+    const checkScreenSize = () => {
+      const width = window.innerWidth;
+      setIsMobile(width < 768);
+      setIsTablet(width >= 768 && width < 1024);
+    };
+
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen && isMobile) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isMobileMenuOpen, isMobile]);
 
   const navigationItems: NavItem[] = isAdmin
     ? [
@@ -168,25 +206,62 @@ export default function Sidebar({ isCollapsed = false }: SidebarProps) {
     return location.pathname.startsWith(href);
   };
 
-  return (
-    <div
-      className={cn(
-        "h-screen bg-white border-r border-gray-100 flex flex-col transition-all duration-300 ease-in-out shadow-sm",
-        isCollapsed ? "w-16" : "w-72"
-      )}
+  const handleMobileToggle = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  // Mobile Menu Button
+  const MobileMenuButton = () => (
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={handleMobileToggle}
+      className="md:hidden fixed top-4 left-4 z-50 p-2 bg-white shadow-lg rounded-lg border"
     >
+      {isMobileMenuOpen ? (
+        <X className="w-5 h-5" />
+      ) : (
+        <Menu className="w-5 h-5" />
+      )}
+    </Button>
+  );
+
+  // Sidebar Content Component
+  const SidebarContent = ({
+    isMobileView = false,
+  }: {
+    isMobileView?: boolean;
+  }) => (
+    <>
       {/* Logo/Brand */}
-      <div className="p-6 border-b border-gray-50">
+      <div
+        className={cn("border-b border-gray-50", isMobileView ? "p-4" : "p-6")}
+      >
         <div className="flex items-center space-x-3">
           <div className="relative">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/25">
-              <Package className="text-white w-6 h-6" />
+            <div
+              className={cn(
+                "bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/25",
+                isMobileView || isCollapsed ? "w-10 h-10" : "w-12 h-12"
+              )}
+            >
+              <Package
+                className={cn(
+                  "text-white",
+                  isMobileView || isCollapsed ? "w-5 h-5" : "w-6 h-6"
+                )}
+              />
             </div>
             <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow-sm"></div>
           </div>
-          {!isCollapsed && (
+          {(!isCollapsed || isMobileView) && (
             <div>
-              <h1 className="text-xl font-bold text-gray-900 tracking-tight">
+              <h1
+                className={cn(
+                  "font-bold text-gray-900 tracking-tight",
+                  isMobileView ? "text-lg" : "text-xl"
+                )}
+              >
                 PackageTracker
               </h1>
               <p className="text-sm text-gray-500 font-medium">
@@ -198,7 +273,12 @@ export default function Sidebar({ isCollapsed = false }: SidebarProps) {
       </div>
 
       {/* Navigation Menu */}
-      <nav className="flex-1 p-4 space-y-2 overflow-hidden hover:overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
+      <nav
+        className={cn(
+          "flex-1 space-y-2 overflow-hidden hover:overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent",
+          isMobileView ? "p-3" : "p-4"
+        )}
+      >
         <style>{`
           .scrollbar-thin::-webkit-scrollbar {
             width: 4px;
@@ -221,26 +301,26 @@ export default function Sidebar({ isCollapsed = false }: SidebarProps) {
               <Collapsible open={item.isOpen} onOpenChange={item.onToggle}>
                 <CollapsibleTrigger
                   className={cn(
-                    "flex items-center justify-between w-full px-4 py-3 rounded-2xl text-gray-600 hover:bg-gray Houdini-50 hover:text-gray-900 transition-all duration-200 group",
-                    isCollapsed && "justify-center"
+                    "flex items-center justify-between w-full px-4 py-3 rounded-2xl text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all duration-200 group",
+                    isCollapsed && !isMobileView && "justify-center"
                   )}
                 >
                   <div className="flex items-center space-x-3">
                     <div className="p-1.5 rounded-xl bg-gray-100 group-hover:bg-white group-hover:shadow-sm transition-all duration-200">
                       <item.icon className="w-5 h-5 flex-shrink-0" />
                     </div>
-                    {!isCollapsed && (
+                    {(!isCollapsed || isMobileView) && (
                       <span className="font-semibold text-sm">{item.name}</span>
                     )}
                   </div>
-                  {!isCollapsed &&
+                  {(!isCollapsed || isMobileView) &&
                     (item.isOpen ? (
                       <ChevronDown className="w-4 h-4 transition-transform duration-200 text-gray-400" />
                     ) : (
                       <ChevronRight className="w-4 h-4 transition-transform duration-200 text-gray-400" />
                     ))}
                 </CollapsibleTrigger>
-                {!isCollapsed && (
+                {(!isCollapsed || isMobileView) && (
                   <CollapsibleContent className="ml-8 space-y-1 mt-2">
                     {item.children?.map((child) => (
                       <Link key={child.name} to={child.href}>
@@ -290,7 +370,7 @@ export default function Sidebar({ isCollapsed = false }: SidebarProps) {
                     isActiveLink(item.href ?? "")
                       ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25"
                       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
-                    isCollapsed && "justify-center"
+                    isCollapsed && !isMobileView && "justify-center"
                   )}
                 >
                   <div
@@ -303,7 +383,7 @@ export default function Sidebar({ isCollapsed = false }: SidebarProps) {
                   >
                     <item.icon className="w-5 h-5 flex-shrink-0" />
                   </div>
-                  {!isCollapsed && (
+                  {(!isCollapsed || isMobileView) && (
                     <span className="font-semibold text-sm">{item.name}</span>
                   )}
                   {isActiveLink(item.href ?? "") && (
@@ -317,15 +397,22 @@ export default function Sidebar({ isCollapsed = false }: SidebarProps) {
       </nav>
 
       {/* User Profile Section */}
-      <div className="p-4 border-t border-gray-50">
+      <div
+        className={cn("border-t border-gray-50", isMobileView ? "p-3" : "p-4")}
+      >
         <div
           className={cn(
             "flex items-center space-x-3 px-4 py-4 rounded-2xl hover:bg-gray-50 cursor-pointer transition-all duration-200 group",
-            isCollapsed && "justify-center"
+            isCollapsed && !isMobileView && "justify-center"
           )}
         >
           <div className="relative">
-            <Avatar className="w-11 h-11 flex-shrink-0 shadow-md ring-2 ring-gray-100">
+            <Avatar
+              className={cn(
+                "flex-shrink-0 shadow-md ring-2 ring-gray-100",
+                isMobileView ? "w-10 h-10" : "w-11 h-11"
+              )}
+            >
               <AvatarFallback className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white text-sm font-bold">
                 {user?.username
                   ? user.username.slice(0, 2).toUpperCase()
@@ -334,7 +421,7 @@ export default function Sidebar({ isCollapsed = false }: SidebarProps) {
             </Avatar>
             <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow-sm"></div>
           </div>
-          {!isCollapsed && (
+          {(!isCollapsed || isMobileView) && (
             <>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-gray-900 truncate">
@@ -356,6 +443,44 @@ export default function Sidebar({ isCollapsed = false }: SidebarProps) {
           )}
         </div>
       </div>
-    </div>
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile Menu Button */}
+      <MobileMenuButton />
+
+      {/* Mobile Overlay */}
+      {isMobileMenuOpen && isMobile && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Desktop Sidebar */}
+      <div
+        className={cn(
+          "hidden md:flex h-screen bg-white border-r border-gray-100 flex-col transition-all duration-300 ease-in-out shadow-sm",
+          // Desktop breakpoint
+          !isMobile && !isTablet && (isCollapsed ? "w-16" : "w-72"),
+          // Tablet breakpoint
+          isTablet && (isCollapsed ? "w-16" : "w-64")
+        )}
+      >
+        <SidebarContent />
+      </div>
+
+      {/* Mobile Sidebar */}
+      <div
+        className={cn(
+          "md:hidden fixed inset-y-0 left-0 z-50 w-80 bg-white border-r border-gray-100 flex flex-col shadow-xl transform transition-transform duration-300 ease-in-out",
+          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        <SidebarContent isMobileView />
+      </div>
+    </>
   );
 }

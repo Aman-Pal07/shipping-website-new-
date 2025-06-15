@@ -224,14 +224,21 @@ const verifyRazorpayPayment = async (req, res) => {
 const handleWebhook = async (req, res) => {
   try {
     const signature = req.headers["x-razorpay-signature"];
+    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
 
     if (!signature) {
       return res.status(400).json({ message: "Missing webhook signature" });
     }
+    if (!webhookSecret) {
+      return res.status(500).json({ message: "Webhook secret not configured" });
+    }
 
+    // Use rawBody for signature verification
+    const payload = req.rawBody || req.body;
     const event = processWebhookEvent(
-      typeof req.body === "string" ? req.body : JSON.stringify(req.body),
-      signature
+      payload,
+      signature,
+      webhookSecret
     );
 
     // Handle different event types
