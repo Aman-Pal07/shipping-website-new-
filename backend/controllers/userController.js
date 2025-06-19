@@ -60,11 +60,29 @@ const updateUser = asyncHandler(async (req, res) => {
     throw new Error("Not authorized to update this user");
   }
 
-  const { email } = req.body;
+  const { 
+    email, 
+    firstName, 
+    lastName, 
+    addressLine1, 
+    addressLine2, 
+    city, 
+    state, 
+    pincode, 
+    phoneNumber 
+  } = req.body;
 
   // Fields that can be updated by the user
   const updateData = {};
   if (email) updateData.email = email;
+  if (firstName) updateData.firstName = firstName;
+  if (lastName) updateData.lastName = lastName;
+  if (addressLine1 !== undefined) updateData.addressLine1 = addressLine1;
+  if (addressLine2 !== undefined) updateData.addressLine2 = addressLine2;
+  if (city) updateData.city = city;
+  if (state) updateData.state = state;
+  if (pincode) updateData.pincode = pincode;
+  if (phoneNumber) updateData.phoneNumber = phoneNumber;
 
   // Additional fields that only admins can update
   if (req.user.role === "admin" && req.body.role) {

@@ -108,9 +108,31 @@ export const authAPI = {
   },
 
   // Get current user
+  // Cache the current user request to prevent duplicates
+  _currentUserRequest: null as Promise<User> | null,
+  
   getCurrentUser: async (): Promise<User> => {
-    const response = await api.get("/auth/me");
-    return response.data;
+    // If there's already a request in progress, return that instead of making a new one
+    if (authAPI._currentUserRequest) {
+      return authAPI._currentUserRequest;
+    }
+
+    try {
+      authAPI._currentUserRequest = api.get("/auth/me")
+        .then(response => {
+          return response.data;
+        })
+        .finally(() => {
+          // Clear the current request when it completes or fails
+          authAPI._currentUserRequest = null;
+        });
+
+      return await authAPI._currentUserRequest;
+    } catch (error) {
+      // Clear the failed request so it can be retried
+      authAPI._currentUserRequest = null;
+      throw error;
+    }
   },
 
   // Logout user

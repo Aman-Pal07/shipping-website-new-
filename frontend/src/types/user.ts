@@ -1,16 +1,26 @@
+export interface UserDocument {
+  documentType: "PAN Card" | "Aadhar Card" | "Passport";
+  documentImage: string;
+  uploadedAt?: Date;
+  _id?: string;
+}
+
 export interface User {
-  id: string | number;
+  _id?: string;
+  id?: string | number;
   firstName: string;
   lastName: string;
   email: string;
-  phone?: string;
-  address?: string;
+  phoneNumber?: string;
+  addressLine1?: string;
+  addressLine2?: string;
   city?: string;
   state?: string;
-  country?: string;
-  postalCode?: string;
+  pincode?: string;
   role: string;
   isVerified: boolean;
+  documents?: UserDocument[];
+  // Keeping these for backward compatibility
   documentType?: "PAN Card" | "Aadhar Card" | "Passport";
   documentImage?: string;
   stripeCustomerId?: string | null;

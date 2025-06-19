@@ -75,6 +75,31 @@ const userSchema = new mongoose.Schema(
     twoFactorSecret: {
       type: String,
     },
+    addressLine1: {
+      type: String,
+      trim: true
+    },
+    addressLine2: {
+      type: String,
+      trim: true,
+      default: ''
+    },
+    city: {
+      type: String,
+      trim: true
+    },
+    state: {
+      type: String,
+      trim: true
+    },
+    pincode: {
+      type: String,
+      trim: true
+    },
+    phoneNumber: {
+      type: String,
+      trim: true
+    },
     emailUpdate: {
       newEmail: {
         type: String,

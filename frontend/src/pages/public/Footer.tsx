@@ -1,5 +1,4 @@
 import {
-  Ship,
   Mail,
   Phone,
   MapPin,
@@ -8,6 +7,7 @@ import {
   Linkedin,
   Instagram,
 } from "lucide-react";
+import { LiaTelegramPlane } from "react-icons/lia";
 
 const Footer = () => {
   const quickLinks = [
@@ -43,12 +43,12 @@ const Footer = () => {
           {/* Company Info */}
           <div className="space-y-6">
             <div className="flex items-center space-x-2">
-              <Ship className="h-8 w-8 text-blue-400" />
-              <span className="text-2xl font-bold">GlobalShip</span>
+              <LiaTelegramPlane className="h-8 w-8 text-blue-400" />
+              <span className="text-2xl font-bold">PARCELUP</span>
             </div>
             <p className="text-gray-300 leading-relaxed">
-              Your trusted global logistics partner, connecting businesses
-              worldwide with reliable, secure, and efficient shipping solutions.
+              Your trusted global logistics partner, connecting businesses from
+              10+ countries to India.
             </p>
             <div className="flex space-x-4">
               {socialLinks.map((social, index) => (

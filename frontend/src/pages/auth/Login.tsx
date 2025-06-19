@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Package } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { AppDispatch, RootState } from "../../store";
 import { loginUser, clearError } from "../../features/auth/authSlice";
+import { LiaTelegramPlane } from "react-icons/lia";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -70,7 +71,7 @@ export default function Login() {
         <div className="text-center">
           <div className="flex justify-center mb-6">
             <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
-              <Package className="h-8 w-8 text-white" />
+              <LiaTelegramPlane className="h-8 w-8 text-white" />
             </div>
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">

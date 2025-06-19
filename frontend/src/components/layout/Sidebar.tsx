@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
+
 import { cn } from "../../lib/utils";
 import { useAuth } from "../../hooks/useAuth";
 import { Button } from "../ui/button";
@@ -30,6 +31,8 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "../ui/collapsible";
+import { LiaTelegramPlane } from "react-icons/lia";
+import { AddressModal } from "../address/AddressModal";
 
 // Define types for user and auth context
 interface User {
@@ -67,17 +70,29 @@ interface SidebarProps {
   onToggle?: () => void;
 }
 
-export default function Sidebar({
-  isCollapsed = false,
-  onToggle,
-}: SidebarProps) {
+export default function Sidebar({ isCollapsed = false }: SidebarProps) {
   const location = useLocation();
   const { user, logout, isAdmin } = useAuth() as AuthContext;
   const [ordersOpen, setOrdersOpen] = useState<boolean>(true);
   const [packagesOpen, setPackagesOpen] = useState<boolean>(false);
+  const [addressOpen, setAddressOpen] = useState<boolean>(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const [isMobile, setIsMobile] = useState<boolean>(false);
   const [isTablet, setIsTablet] = useState<boolean>(false);
+  const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
+  // Country options for address dropdown
+  const countryOptions = [
+    { code: "us", name: "United States" },
+    { code: "uk", name: "United Kingdom" },
+    { code: "cn", name: "China" },
+    { code: "hk", name: "Hong Kong" },
+    { code: "my", name: "Malaysia" },
+    { code: "sg", name: "Singapore" },
+  ];
+
+  const handleCountryClick = (countryCode: string) => {
+    setSelectedCountry(countryCode);
+  };
 
   // Check screen size and update responsive states
   useEffect(() => {
@@ -186,7 +201,18 @@ export default function Sidebar({
           ],
         },
         { name: "Track Packages", href: "/dashboard/track", icon: Search },
-        { name: "Address", href: "/dashboard/address", icon: MapPin },
+        {
+          name: "Address",
+          icon: MapPin,
+          isCollapsible: true,
+          isOpen: addressOpen,
+          onToggle: () => setAddressOpen(!addressOpen),
+          children: countryOptions.map((country) => ({
+            name: country.name,
+            href: `/dashboard/address/${country.code.toLowerCase()}`,
+            icon: MapPin,
+          })),
+        },
         {
           name: "Transactions",
           href: "/dashboard/transactions",
@@ -245,7 +271,7 @@ export default function Sidebar({
                 isMobileView || isCollapsed ? "w-10 h-10" : "w-12 h-12"
               )}
             >
-              <Package
+              <LiaTelegramPlane
                 className={cn(
                   "text-white",
                   isMobileView || isCollapsed ? "w-5 h-5" : "w-6 h-6"
@@ -262,7 +288,10 @@ export default function Sidebar({
                   isMobileView ? "text-lg" : "text-xl"
                 )}
               >
-                PackageTracker
+                <span className="text-gradient-to-br from-blue-600 via-indigo-600 to-purple-700">
+                  PARCEL
+                </span>
+                UP
               </h1>
               <p className="text-sm text-gray-500 font-medium">
                 {isAdmin ? "Admin Panel" : "User Portal"}
@@ -322,43 +351,71 @@ export default function Sidebar({
                 </CollapsibleTrigger>
                 {(!isCollapsed || isMobileView) && (
                   <CollapsibleContent className="ml-8 space-y-1 mt-2">
-                    {item.children?.map((child) => (
-                      <Link key={child.name} to={child.href}>
-                        <div
-                          className={cn(
-                            "flex items-center justify-between px-4 py-2.5 text-sm rounded-xl hover:bg-gray-50 transition-all duration-200 group relative",
-                            isActiveLink(child.href)
-                              ? "text-white bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/25"
-                              : "text-gray-600 hover:text-gray-900"
-                          )}
-                        >
-                          <div className="flex items-center space-x-3">
-                            <div
-                              className={cn(
-                                "w-2.5 h-2.5 rounded-full transition-all duration-200 shadow-sm",
-                                child.name === "Waiting" && "bg-amber-400",
-                                child.name === "In Transit" && "bg-blue-500",
-                                child.name === "India" && "bg-purple-500",
-                                child.name === "Dispatch" && "bg-emerald-500"
-                              )}
-                            />
-                            <span className="font-semibold">{child.name}</span>
+                    {item.name === "Address" ? (
+                      <div className="space-y-1">
+                        {item.children?.map((child) => (
+                          <Link
+                            key={child.name}
+                            to={child.href}
+                            className={cn(
+                              "flex items-center justify-between px-4 py-2.5 text-sm rounded-xl hover:bg-gray-50 transition-all duration-200 group relative",
+                              isActiveLink(child.href)
+                                ? "text-white bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/25"
+                                : "text-gray-600 hover:text-gray-900"
+                            )}
+                          >
+                            <div className="flex items-center space-x-3">
+                              <span className="text-xs font-mono font-bold w-6 h-6 flex items-center justify-center bg-white/20 rounded-full">
+                                {child.href?.split("/").pop()?.toUpperCase()}
+                              </span>
+                              <span className="font-semibold">
+                                {child.name}
+                              </span>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    ) : (
+                      item.children?.map((child) => (
+                        <Link key={child.name} to={child.href}>
+                          <div
+                            className={cn(
+                              "flex items-center justify-between px-4 py-2.5 text-sm rounded-xl hover:bg-gray-50 transition-all duration-200 group relative",
+                              isActiveLink(child.href)
+                                ? "text-white bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/25"
+                                : "text-gray-600 hover:text-gray-900"
+                            )}
+                          >
+                            <div className="flex items-center space-x-3">
+                              <div
+                                className={cn(
+                                  "w-2.5 h-2.5 rounded-full transition-all duration-200 shadow-sm",
+                                  child.name === "Waiting" && "bg-amber-400",
+                                  child.name === "In Transit" && "bg-blue-500",
+                                  child.name === "India" && "bg-purple-500",
+                                  child.name === "Dispatch" && "bg-emerald-500"
+                                )}
+                              />
+                              <span className="font-semibold">
+                                {child.name}
+                              </span>
+                            </div>
+                            {child.count !== undefined && (
+                              <span
+                                className={cn(
+                                  "text-xs px-2.5 py-1 rounded-full font-bold transition-all duration-200",
+                                  isActiveLink(child.href)
+                                    ? "bg-white/20 text-white"
+                                    : "bg-gray-100 text-gray-600 group-hover:bg-gray-200"
+                                )}
+                              >
+                                {child.count}
+                              </span>
+                            )}
                           </div>
-                          {child.count !== undefined && (
-                            <span
-                              className={cn(
-                                "text-xs px-2.5 py-1 rounded-full font-bold transition-all duration-200",
-                                isActiveLink(child.href)
-                                  ? "bg-white/20 text-white"
-                                  : "bg-gray-100 text-gray-600 group-hover:bg-gray-200"
-                              )}
-                            >
-                              {child.count}
-                            </span>
-                          )}
-                        </div>
-                      </Link>
-                    ))}
+                        </Link>
+                      ))
+                    )}
                   </CollapsibleContent>
                 )}
               </Collapsible>
@@ -481,6 +538,13 @@ export default function Sidebar({
       >
         <SidebarContent isMobileView />
       </div>
+
+      {/* Address Modal */}
+      <AddressModal
+        isOpen={!!selectedCountry}
+        onClose={() => setSelectedCountry(null)}
+        countryCode={selectedCountry || ""}
+      />
     </>
   );
 }

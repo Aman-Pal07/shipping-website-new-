@@ -1,506 +1,359 @@
-import React, { useState } from "react";
-import { Home, PlusCircle, Edit, Trash2, Check } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Phone,
+  User,
+  Building,
+  Globe,
+  ChevronDown,
+  ChevronUp,
+  ChevronRight,
+  Globe2,
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-// Sample address data
-const initialAddresses = [
-  {
-    id: 1,
-    name: "Home",
-    addressLine1: "123 Main Street",
-    addressLine2: "Apartment 4B",
-    city: "Mumbai",
-    state: "Maharashtra",
-    postalCode: "400001",
-    country: "India",
-    phone: "+91 9876543210",
-    isDefault: true,
-  },
-  {
-    id: 2,
-    name: "Office",
-    addressLine1: "456 Business Park",
-    addressLine2: "Building C, Floor 5",
-    city: "Mumbai",
-    state: "Maharashtra",
-    postalCode: "400051",
-    country: "India",
-    phone: "+91 9876543211",
-    isDefault: false,
-  },
-  {
-    id: 3,
-    name: "Parents",
-    addressLine1: "789 Family Road",
-    addressLine2: "",
-    city: "Delhi",
-    state: "Delhi",
-    postalCode: "110001",
-    country: "India",
-    phone: "+91 9876543212",
-    isDefault: false,
-  },
-];
-
-interface Address {
-  id: number;
-  name: string;
-  addressLine1: string;
-  addressLine2: string;
-  city: string;
-  state: string;
-  postalCode: string;
+interface AddressType {
   country: string;
+  firstName: string;
+  lastName: string;
+  addressLine1: string;
+  addressLine2?: string;
+  city?: string;
+  state: string;
+  countryFull?: string;
+  district?: string;
+  pincode?: string;
+  postcode?: string;
   phone: string;
-  isDefault: boolean;
 }
 
-export default function Address() {
-  const [addresses, setAddresses] = useState<Address[]>(initialAddresses);
-  const [isAddingAddress, setIsAddingAddress] = useState(false);
-  const [editingAddressId, setEditingAddressId] = useState<number | null>(null);
-  const [newAddress, setNewAddress] = useState<Omit<Address, "id">>({
-    name: "",
-    addressLine1: "",
-    addressLine2: "",
-    city: "",
-    state: "",
-    postalCode: "",
-    country: "India",
-    phone: "",
-    isDefault: false,
-  });
+const countryAddresses: Record<string, AddressType> = {
+  sg: {
+    country: "Singapore",
+    firstName: "Nirbhay Aksh",
+    lastName: "Client name",
+    addressLine1: "DTDC Global Express Pte Ltd",
+    addressLine2: "101 Kitchener Road, #01-31 Jalan Besar Plaza, Singapore",
+    pincode: "208511",
+    phone: "62948098",
+    state: "Singapore",
+  },
+  my: {
+    country: "Malaysia",
+    firstName: "Nirbhay Aksh",
+    lastName: "Client name",
+    addressLine1: "No.32, Jalan Sepadu C/O World Asia",
+    addressLine2: "25/123A, Seksyen 25",
+    city: "Shah Alam",
+    state: "Selangor",
+    pincode: "40400",
+    phone: "125318196",
+  },
+  hk: {
+    country: "Hong Kong",
+    firstName: "Nirbhay Aksh",
+    lastName: "Client name",
+    addressLine1: "3/F Unit 12 Kwai Cheong Centre",
+    addressLine2: "50 Kwai Cheong Road",
+    city: "Kwai Chung",
+    state: "NT/New territory",
+    countryFull: "Hong Kong SAR",
+    pincode: "999077",
+    phone: "+85252221152",
+  },
+  cn: {
+    country: "China",
+    firstName: "尼尔",
+    lastName: "Aksh Client name",
+    addressLine1: "深圳市宝安区西乡街道宝运达物流中心综合楼三栋612",
+    district: "Baon",
+    state: "Shenzen",
+    postcode: "518102",
+    phone: "18926097113",
+  },
+  uk: {
+    country: "UK",
+    firstName: "Nirbhay Aksh",
+    lastName: "Client name",
+    addressLine1: "Icc global",
+    addressLine2: "Unit 25,Phoenix distribution park",
+    city: "Heston",
+    state: "Middlesex",
+    countryFull: "UK",
+    pincode: "TW5 9NB",
+    phone: "7967170219",
+  },
+  us: {
+    country: "US",
+    firstName: "Nirbhay Aksh",
+    lastName: "Client Name",
+    addressLine1: "177-15 149th Rd",
+    city: "Jamaica",
+    state: "New York",
+    pincode: "11434-6218",
+    phone: "+1 (347) 445-5958",
+  },
+};
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setNewAddress({
-      ...newAddress,
-      [name]: value,
-    });
+type CountryCode = keyof typeof countryAddresses;
+
+const Address = () => {
+  const { countryCode = "us" } = useParams<{ countryCode?: string }>();
+  const navigate = useNavigate();
+  const [currentAddress, setCurrentAddress] = useState<AddressType | null>(
+    null
+  );
+  const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false);
+  const { user } = useAuth();
+
+  // Get country name from code
+  const getCountryName = (code: string) => {
+    return countryAddresses[code as CountryCode]?.country || code.toUpperCase();
   };
 
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = e.target;
-    setNewAddress({
-      ...newAddress,
-      [name]: checked,
-    });
+  // Handle country selection
+  const handleCountrySelect = (code: CountryCode) => {
+    navigate(`/dashboard/address/${code}`);
+    setIsCountryDropdownOpen(false);
   };
 
-  const resetForm = () => {
-    setNewAddress({
-      name: "",
-      addressLine1: "",
-      addressLine2: "",
-      city: "",
-      state: "",
-      postalCode: "",
-      country: "India",
-      phone: "",
-      isDefault: false,
-    });
-  };
-
-  const handleAddAddress = () => {
-    // Basic validation
-    if (
-      !newAddress.name ||
-      !newAddress.addressLine1 ||
-      !newAddress.city ||
-      !newAddress.state ||
-      !newAddress.postalCode ||
-      !newAddress.phone
-    ) {
-      alert("Please fill in all required fields");
-      return;
+  // Update address when country code changes
+  useEffect(() => {
+    if (countryCode && countryAddresses[countryCode as CountryCode]) {
+      setCurrentAddress(countryAddresses[countryCode as CountryCode]);
+    } else {
+      // Default to US address if country code is invalid
+      navigate("/dashboard/address/us", { replace: true });
     }
+  }, [countryCode, navigate]);
 
-    const newId = Math.max(...addresses.map((addr) => addr.id)) + 1;
-
-    // If the new address is set as default, update other addresses
-    let updatedAddresses = addresses;
-    if (newAddress.isDefault) {
-      updatedAddresses = addresses.map((addr) => ({
-        ...addr,
-        isDefault: false,
-      }));
-    }
-
-    setAddresses([
-      ...updatedAddresses,
-      {
-        ...newAddress,
-        id: newId,
-      },
-    ]);
-
-    // Reset form and close it
-    resetForm();
-    setIsAddingAddress(false);
-  };
-
-  const handleEditAddress = (address: Address) => {
-    setEditingAddressId(address.id);
-    setNewAddress({
-      name: address.name,
-      addressLine1: address.addressLine1,
-      addressLine2: address.addressLine2,
-      city: address.city,
-      state: address.state,
-      postalCode: address.postalCode,
-      country: address.country,
-      phone: address.phone,
-      isDefault: address.isDefault,
-    });
-    setIsAddingAddress(true);
-  };
-
-  const handleUpdateAddress = () => {
-    // Basic validation
-    if (
-      !newAddress.name ||
-      !newAddress.addressLine1 ||
-      !newAddress.city ||
-      !newAddress.state ||
-      !newAddress.postalCode ||
-      !newAddress.phone
-    ) {
-      alert("Please fill in all required fields");
-      return;
-    }
-
-    // If the edited address is set as default, update other addresses
-    let updatedAddresses = addresses;
-    if (newAddress.isDefault) {
-      updatedAddresses = addresses.map((addr) => ({
-        ...addr,
-        isDefault: false,
-      }));
-    }
-
-    setAddresses(
-      updatedAddresses.map((addr) =>
-        addr.id === editingAddressId
-          ? { ...newAddress, id: editingAddressId }
-          : addr
-      )
+  if (!currentAddress) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="w-16 h-16 mx-auto border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-lg text-gray-600 font-medium">
+            Loading address...
+          </p>
+        </div>
+      </div>
     );
+  }
 
-    // Reset form and close it
-    resetForm();
-    setIsAddingAddress(false);
-    setEditingAddressId(null);
-  };
+  // Country options for dropdown
+  const countryOptions = [
+    { code: "sg", name: "Singapore" },
+    { code: "my", name: "Malaysia" },
+    { code: "hk", name: "Hong Kong" },
+    { code: "cn", name: "China" },
+    { code: "uk", name: "United Kingdom" },
+    { code: "us", name: "United States" },
+  ];
 
-  const handleDeleteAddress = (id: number) => {
-    const addressToDelete = addresses.find((addr) => addr.id === id);
-
-    if (addressToDelete?.isDefault) {
-      alert(
-        "Cannot delete the default address. Please set another address as default first."
-      );
-      return;
-    }
-
-    if (window.confirm("Are you sure you want to delete this address?")) {
-      setAddresses(addresses.filter((addr) => addr.id !== id));
-    }
-  };
-
-  const handleSetDefault = (id: number) => {
-    setAddresses(
-      addresses.map((addr) => ({
-        ...addr,
-        isDefault: addr.id === id,
-      }))
-    );
+  const getCountryFlag = (countryCode: string) => {
+    const flags: Record<string, string> = {
+      sg: "🇸🇬",
+      my: "🇲🇾",
+      hk: "🇭🇰",
+      cn: "🇨🇳",
+      uk: "🇬🇧",
+      us: "🇺🇸",
+    };
+    return flags[countryCode] || "🌍";
   };
 
   return (
-    <div className="p-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-        <h1 className="text-2xl font-bold mb-4 sm:mb-0">My Addresses</h1>
-        <button
-          className="flex items-center bg-primary text-white px-4 py-2 rounded-md hover:bg-primary/90"
-          onClick={() => {
-            resetForm();
-            setEditingAddressId(null);
-            setIsAddingAddress(true);
-          }}
-        >
-          <PlusCircle className="w-4 h-4 mr-2" />
-          Add New Address
-        </button>
-      </div>
-
-      {isAddingAddress && (
-        <div className=" border border-border rounded-lg shadow-sm mb-8">
-          <div className="p-6 border-b border-border">
-            <h2 className="text-lg font-semibold">
-              {editingAddressId ? "Edit Address" : "Add New Address"}
-            </h2>
-          </div>
-
-          <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-medium mb-1"
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4">
+      <div className="container mx-auto max-w-4xl">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-gray-800">Address Book</h1>
+          <DropdownMenu
+            open={isCountryDropdownOpen}
+            onOpenChange={setIsCountryDropdownOpen}
+          >
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="gap-2">
+                <Globe2 className="h-4 w-4" />
+                <span>{getCountryName(countryCode as CountryCode)}</span>
+                {isCountryDropdownOpen ? (
+                  <ChevronUp className="h-4 w-4 ml-1 opacity-50" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 ml-1 opacity-50" />
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-[200px]">
+              {countryOptions.map((country) => (
+                <DropdownMenuItem
+                  key={country.code}
+                  onClick={() =>
+                    handleCountrySelect(country.code as CountryCode)
+                  }
+                  className={`flex items-center gap-2 cursor-pointer ${
+                    countryCode === country.code ? "bg-accent" : ""
+                  }`}
                 >
-                  Address Name*
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  className="w-full border border-input rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-primary "
-                  placeholder="Home, Office, etc."
-                  value={newAddress.name}
-                  onChange={handleInputChange}
-                  required
-                />
+                  <span className="text-lg">
+                    {getCountryFlag(country.code)}
+                  </span>
+                  <span>{country.name}</span>
+                  {countryCode === country.code && (
+                    <ChevronRight className="h-4 w-4 ml-auto" />
+                  )}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        <Card className="overflow-hidden shadow-2xl border-0 bg-white/90 backdrop-blur-sm transform transition-all duration-300 hover:shadow-3xl">
+          <CardContent className="p-8">
+            <div className="space-y-8">
+              {/* Personal Information */}
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 border border-blue-100 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-lg">
+                <div className="flex items-center gap-2 mb-4">
+                  <User className="w-5 h-5 text-blue-600" />
+                  <h3 className="text-lg font-semibold text-gray-800">
+                    Personal Information
+                  </h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+                      First Name
+                    </p>
+                    <p className="text-lg font-semibold text-gray-800 bg-white rounded-lg px-4 py-2 shadow-sm transition-all duration-200 hover:shadow-md">
+                      {currentAddress.firstName}
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+                      Last Name
+                    </p>
+                    <p className="text-lg font-semibold text-gray-800 bg-white rounded-lg px-4 py-2 shadow-sm transition-all duration-200 hover:shadow-md">
+                      {user?.firstName || currentAddress.lastName}
+                    </p>
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <label
-                  htmlFor="phone"
-                  className="block text-sm font-medium mb-1"
-                >
-                  Phone Number*
-                </label>
-                <input
-                  type="text"
-                  id="phone"
-                  name="phone"
-                  className="w-full border border-input rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-primary "
-                  placeholder="+91 9876543210"
-                  value={newAddress.phone}
-                  onChange={handleInputChange}
-                  required
-                />
+              {/* Address Information */}
+              <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6 border border-green-100 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-lg">
+                <div className="flex items-center gap-2 mb-4">
+                  <Building className="w-5 h-5 text-green-600" />
+                  <h3 className="text-lg font-semibold text-gray-800">
+                    Address Information
+                  </h3>
+                </div>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="bg-white rounded-lg px-4 py-3 shadow-sm space-y-1 transition-all duration-200 hover:shadow-md">
+                      <p className="text-md text-gray-600">
+                        Address Line 1: {currentAddress.addressLine1}
+                      </p>
+                      {currentAddress.addressLine2 && (
+                        <p className="text-md text-gray-600">
+                          Address Line 2: {currentAddress.addressLine2}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {currentAddress.city && (
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+                          City
+                        </p>
+                        <p className="text-md font-semibold text-gray-800 bg-white rounded-lg px-4 py-2 shadow-sm transition-all duration-200 hover:shadow-md">
+                          {currentAddress.city}
+                        </p>
+                      </div>
+                    )}
+
+                    {currentAddress.district && (
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+                          District
+                        </p>
+                        <p className="text-md font-semibold text-gray-800 bg-white rounded-lg px-4 py-2 shadow-sm transition-all duration-200 hover:shadow-md">
+                          {currentAddress.district}
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+                        {currentAddress.country === "US"
+                          ? "State"
+                          : "State/Province"}
+                      </p>
+                      <p className="text-md font-semibold text-gray-800 bg-white rounded-lg px-4 py-2 shadow-sm transition-all duration-200 hover:shadow-md">
+                        {currentAddress.state}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {currentAddress.countryFull && (
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium text-gray-500 uppercase tracking-wide flex items-center gap-1">
+                          <Globe className="w-4 h-4" />
+                          Country
+                        </p>
+                        <p className="text-md font-semibold text-gray-800 bg-white rounded-lg px-4 py-2 shadow-sm transition-all duration-200 hover:shadow-md">
+                          {currentAddress.countryFull}
+                        </p>
+                      </div>
+                    )}
+
+                    {(currentAddress.pincode || currentAddress.postcode) && (
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+                          {currentAddress.country === "UK" ||
+                          currentAddress.country === "US"
+                            ? "Postcode"
+                            : "Pincode"}
+                        </p>
+                        <p className="text-md font-semibold text-gray-800 bg-white rounded-lg px-4 py-2 shadow-sm transition-all duration-200 hover:shadow-md">
+                          {currentAddress.pincode || currentAddress.postcode}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
 
-              <div className="md:col-span-2">
-                <label
-                  htmlFor="addressLine1"
-                  className="block text-sm font-medium mb-1"
-                >
-                  Address Line 1*
-                </label>
-                <input
-                  type="text"
-                  id="addressLine1"
-                  name="addressLine1"
-                  className="w-full border border-input rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-primary "
-                  placeholder="Street address, P.O. box, company name"
-                  value={newAddress.addressLine1}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label
-                  htmlFor="addressLine2"
-                  className="block text-sm font-medium mb-1"
-                >
-                  Address Line 2
-                </label>
-                <input
-                  type="text"
-                  id="addressLine2"
-                  name="addressLine2"
-                  className="w-full border border-input rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-primary "
-                  placeholder="Apartment, suite, unit, building, floor, etc."
-                  value={newAddress.addressLine2}
-                  onChange={handleInputChange}
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="city"
-                  className="block text-sm font-medium mb-1"
-                >
-                  City*
-                </label>
-                <input
-                  type="text"
-                  id="city"
-                  name="city"
-                  className="w-full border border-input rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-primary "
-                  value={newAddress.city}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="state"
-                  className="block text-sm font-medium mb-1"
-                >
-                  State/Province*
-                </label>
-                <input
-                  type="text"
-                  id="state"
-                  name="state"
-                  className="w-full border border-input rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-primary "
-                  value={newAddress.state}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="postalCode"
-                  className="block text-sm font-medium mb-1"
-                >
-                  Postal Code*
-                </label>
-                <input
-                  type="text"
-                  id="postalCode"
-                  name="postalCode"
-                  className="w-full border border-input rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-primary "
-                  value={newAddress.postalCode}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="country"
-                  className="block text-sm font-medium mb-1"
-                >
-                  Country*
-                </label>
-                <select
-                  id="country"
-                  name="country"
-                  className="w-full border border-input rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-primary "
-                  value={newAddress.country}
-                  onChange={handleInputChange}
-                  required
-                >
-                  <option value="India">India</option>
-                  <option value="United States">United States</option>
-                  <option value="United Kingdom">United Kingdom</option>
-                  <option value="Canada">Canada</option>
-                  <option value="Australia">Australia</option>
-                  <option value="Singapore">Singapore</option>
-                  <option value="UAE">UAE</option>
-                </select>
-              </div>
-
-              <div className="md:col-span-2">
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="isDefault"
-                    name="isDefault"
-                    className="w-4 h-4 text-primary focus:ring-primary rounded"
-                    checked={newAddress.isDefault}
-                    onChange={handleCheckboxChange}
-                  />
-                  <label htmlFor="isDefault" className="ml-2 text-sm">
-                    Set as default address
-                  </label>
+              {/* Contact Information */}
+              <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-100 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-lg">
+                <div className="flex items-center gap-2 mb-4">
+                  <Phone className="w-5 h-5 text-purple-600" />
+                  <h3 className="text-lg font-semibold text-gray-800">
+                    Contact Information
+                  </h3>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+                    Phone Number
+                  </p>
+                  <p className="text-lg font-semibold text-gray-800 bg-white rounded-lg px-4 py-3 shadow-sm transition-all duration-200 hover:shadow-md">
+                    {currentAddress.phone}
+                  </p>
                 </div>
               </div>
             </div>
-
-            <div className="flex justify-end gap-2 mt-6">
-              <button
-                className="px-4 py-2 border border-input rounded-md text-sm hover:bg-muted"
-                onClick={() => {
-                  setIsAddingAddress(false);
-                  setEditingAddressId(null);
-                  resetForm();
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                className="px-4 py-2 bg-primary text-white rounded-md text-sm hover:bg-primary/90"
-                onClick={
-                  editingAddressId ? handleUpdateAddress : handleAddAddress
-                }
-              >
-                {editingAddressId ? "Update Address" : "Add Address"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {addresses.map((address) => (
-          <div
-            key={address.id}
-            className={` border ${
-              address.isDefault ? "border-primary" : "border-border"
-            } rounded-lg shadow-sm p-6 relative`}
-          >
-            {address.isDefault && (
-              <div className="absolute top-4 right-4 bg-primary/10 text-primary text-xs px-2 py-1 rounded-full flex items-center">
-                <Check className="w-3 h-3 mr-1" />
-                Default
-              </div>
-            )}
-
-            <div className="flex items-center mb-4">
-              <Home className="w-5 h-5 text-primary mr-2" />
-              <h3 className="font-semibold">{address.name}</h3>
-            </div>
-
-            <div className="text-sm text-muted-foreground mb-4">
-              <p>{address.addressLine1}</p>
-              {address.addressLine2 && <p>{address.addressLine2}</p>}
-              <p>
-                {address.city}, {address.state} {address.postalCode}
-              </p>
-              <p>{address.country}</p>
-              <p className="mt-2">{address.phone}</p>
-            </div>
-
-            <div className="flex gap-2">
-              <button
-                className="px-3 py-1.5 border border-input rounded-md text-xs hover:bg-muted flex items-center"
-                onClick={() => handleEditAddress(address)}
-              >
-                <Edit className="w-3 h-3 mr-1" />
-                Edit
-              </button>
-
-              {!address.isDefault && (
-                <button
-                  className="px-3 py-1.5 border border-input rounded-md text-xs hover:bg-muted flex items-center"
-                  onClick={() => handleSetDefault(address.id)}
-                >
-                  <Check className="w-3 h-3 mr-1" />
-                  Set Default
-                </button>
-              )}
-
-              {!address.isDefault && (
-                <button
-                  className="px-3 py-1.5 border border-red-200 text-red-500 rounded-md text-xs hover:bg-red-50 flex items-center"
-                  onClick={() => handleDeleteAddress(address.id)}
-                >
-                  <Trash2 className="w-3 h-3 mr-1" />
-                  Delete
-                </button>
-              )}
-            </div>
-          </div>
-        ))}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
-}
+};
+
+export default Address;

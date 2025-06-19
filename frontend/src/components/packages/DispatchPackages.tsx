@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import api from "@/lib/axios";
-import {
-  Circle,
-  Package as PackageIcon,
-  CreditCard,
-  Ruler,
-  Scale,
+import { 
+  Circle, 
+  Package as PackageIcon, 
+  CreditCard, 
+  Ruler, 
+  Scale 
 } from "lucide-react";
 import { RootState } from "@/store";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
@@ -111,6 +111,18 @@ export default function DispatchPackages() {
     );
   }
 
+  if (transactions.length === 0) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-center">
+          <PackageIcon className="mx-auto h-12 w-12 text-gray-400" />
+          <h3 className="mt-2 text-sm font-medium text-gray-900">No transactions found</h3>
+          <p className="mt-1 text-sm text-gray-500">Your completed transactions will appear here.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <Card className="bg-white border border-gray-100 shadow-lg rounded-2xl overflow-hidden">
@@ -177,7 +189,9 @@ export default function DispatchPackages() {
                                 {tx.weightUnit || pkg.weightUnit || "kg"}
                               </span>
                             ) : (
-                              <span className="text-blue-600 font-medium">Processing</span>
+                              <span className="text-blue-600 font-medium">
+                                Processing
+                              </span>
                             )}
                           </div>
                         </TableCell>
@@ -189,7 +203,9 @@ export default function DispatchPackages() {
                               {tx.dimensions.height} {tx.dimensions.unit}
                             </div>
                           ) : (
-                            <span className="text-sm text-blue-600 font-medium">Processing</span>
+                            <span className="text-sm text-blue-600 font-medium">
+                              Processing
+                            </span>
                           )}
                         </TableCell>
 
@@ -201,7 +217,9 @@ export default function DispatchPackages() {
                               {tx.volumetricWeightUnit || "kg"}
                             </div>
                           ) : (
-                            <span className="text-sm text-blue-600 font-medium">Processing</span>
+                            <span className="text-sm text-blue-600 font-medium">
+                              Processing
+                            </span>
                           )}
                         </TableCell>
 

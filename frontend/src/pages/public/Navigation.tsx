@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Menu, X, Ship } from "lucide-react";
+import { Menu, X } from "lucide-react";
+import { LiaTelegramPlane } from "react-icons/lia";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -47,12 +48,12 @@ const Navigation = () => {
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-blue-100/50 to-blue-200/30 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="relative bg-gradient-to-br from-blue-600 to-blue-800 p-4 rounded-2xl shadow-lg transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 border border-blue-200/30">
-                <Ship className="h-8 w-8 text-white" />
+                <LiaTelegramPlane className="h-8 w-8 text-white" />
               </div>
             </div>
             <div className="flex flex-col">
               <span className="text-3xl font-bold bg-gradient-to-r from-blue-800 to-blue-600 bg-clip-text text-transparent drop-shadow-sm">
-                GlobalShip
+                PARCEL
               </span>
               <span className="text-sm text-blue-600 font-medium tracking-wide">
                 Worldwide Logistics

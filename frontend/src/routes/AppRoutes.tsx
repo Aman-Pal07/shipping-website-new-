@@ -119,6 +119,7 @@ const AppRoutes = () => {
           <Route index element={<UserOverview />} />
           <Route path="orders" element={<UserOrders />} />
           <Route path="address" element={<UserAddress />} />
+          <Route path="address/:countryCode" element={<UserAddress />} />
           <Route path="track" element={<UserTrack />} />
           <Route path="transactions" element={<UserTransactions />} />
           <Route path="packages" element={<PackagesByStatusPage />} />

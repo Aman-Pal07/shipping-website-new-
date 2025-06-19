@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "../../store";
 import { fetchAllUsers } from "../../features/users/userSlice";
-import { Search, Edit, Trash, UserPlus } from "lucide-react";
+import { Search, Edit, Trash, UserPlus, Eye } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -23,7 +30,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { User } from "../../types/user";
+import { User, UserDocument } from "../../types/user";
 
 // User status mapping
 const getUserStatus = (user: User) => {
@@ -65,7 +72,11 @@ export default function Users() {
   );
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterRole, setFilterRole] = useState("all");
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [selectedDocument, setSelectedDocument] = useState<{
+    type: string;
+    url: string;
+  } | null>(null);
   const [filterStatus, setFilterStatus] = useState("all");
 
   // Fetch users when component mounts
@@ -75,22 +86,28 @@ export default function Users() {
 
   // Filter users based on search term and filters
   const filteredUsers = users.filter((user: User) => {
-    // Get user status based on verification status
-    const userStatus = getUserStatus(user);
-
     const matchesSearch =
-      (user.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.documentType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.role?.toLowerCase().includes(searchTerm.toLowerCase())) ??
-      false;
+      user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesRole = filterRole === "all" || user.role === filterRole;
-    const matchesStatus = filterStatus === "all" || userStatus === filterStatus;
+    const matchesRole = roleFilter === "all" || user.role === roleFilter;
 
-    return matchesSearch && matchesRole && matchesStatus;
+    return matchesSearch && matchesRole;
   });
+
+  // Handle document preview
+  const handleDocumentPreview = (
+    documentType: string,
+    documentImage: string
+  ) => {
+    setSelectedDocument({
+      type: documentType,
+      url: documentImage.startsWith("http")
+        ? documentImage
+        : `${process.env.REACT_APP_API_URL || ""}${documentImage}`,
+    });
+  };
 
   // Handle user deletion
   const handleDeleteUser = (userId: number) => {
@@ -211,7 +228,7 @@ export default function Users() {
               </div>
 
               <div className="flex gap-3">
-                <Select value={filterRole} onValueChange={setFilterRole}>
+                <Select value={roleFilter} onValueChange={setRoleFilter}>
                   <SelectTrigger className="w-40 border-gray-200 rounded-lg bg-white">
                     <SelectValue placeholder="All Roles" />
                   </SelectTrigger>
@@ -255,7 +272,10 @@ export default function Users() {
                       Status
                     </TableHead>
                     <TableHead className="text-left py-4 px-6 font-semibold text-gray-900">
-                      Verified
+                      Document
+                    </TableHead>
+                    <TableHead className="text-left py-4 px-6 font-semibold text-gray-900">
+                      Actions
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -310,79 +330,64 @@ export default function Users() {
                           <div className="text-sm text-gray-900">
                             {user.email}
                           </div>
-                          <div className="text-xs text-gray-500">
-                            {user.phone || "No phone number"}
-                          </div>
-                        </TableCell>
-
-                        {/* Document Info */}
-                        <TableCell className="py-4 px-6">
-                          {user.documentType ? (
-                            <div className="space-y-1">
-                              <Badge variant="outline" className="text-xs">
-                                {user.documentType}
-                              </Badge>
-                              {user.documentImage ? (
-                                <div className="mt-1">
-                                  <a
-                                    href={user.documentImage}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-xs text-blue-600 hover:underline flex items-center"
-                                  >
-                                    <span>View Document</span>
-                                    <svg
-                                      className="w-3 h-3 ml-1"
-                                      fill="none"
-                                      stroke="currentColor"
-                                      viewBox="0 0 24 24"
-                                      xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                      <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                                      />
-                                    </svg>
-                                  </a>
-                                </div>
-                              ) : (
-                                <span className="text-xs text-gray-500">
-                                  No document
-                                </span>
-                              )}
-                            </div>
-                          ) : (
-                            <span className="text-xs text-gray-400">
-                              No document
-                            </span>
-                          )}
                         </TableCell>
 
                         {/* Role & Status */}
                         <TableCell className="py-4 px-6">
-                          <div className="space-y-2">
-                            <div>
-                              <Badge
-                                className={`${getRoleBadgeColor(
-                                  user.role
-                                )} px-2 py-1 text-xs font-medium`}
-                              >
-                                {user.role}
-                              </Badge>
+                          <Badge
+                            className={`${getRoleBadgeColor(
+                              user.role
+                            )} px-2 py-1 text-xs font-medium`}
+                          >
+                            {user.role}
+                          </Badge>
+                        </TableCell>
+
+                        <TableCell className="py-4 px-6">
+                          <Badge
+                            className={`${getStatusBadgeColor(
+                              getUserStatus(user)
+                            )} px-2 py-1 text-xs font-medium`}
+                          >
+                            {getUserStatus(user)}
+                            {user.isVerified && " • Verified"}
+                          </Badge>
+                        </TableCell>
+
+                        <TableCell className="py-4 px-6">
+                          {user.documents && user.documents.length > 0 ? (
+                            <div className="space-y-2">
+                              {user.documents?.map(
+                                (doc: UserDocument, index: number) => (
+                                  <div
+                                    key={index}
+                                    className="flex items-center space-x-2"
+                                  >
+                                    <span className="text-sm text-gray-600">
+                                      {doc.documentType}
+                                    </span>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-8 w-8"
+                                      onClick={() =>
+                                        handleDocumentPreview(
+                                          doc.documentType,
+                                          doc.documentImage
+                                        )
+                                      }
+                                    >
+                                      <Eye className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                )
+                              )}
                             </div>
-                            <div>
-                              <Badge
-                                className={`${getStatusBadgeColor(
-                                  getUserStatus(user)
-                                )} px-2 py-1 text-xs font-medium`}
-                              >
-                                {getUserStatus(user)}
-                                {user.isVerified && " • Verified"}
-                              </Badge>
-                            </div>
-                          </div>
+                          ) : (
+                            <span className="text-sm text-gray-400">
+                              No documents
+                            </span>
+                          )}
                         </TableCell>
 
                         {/* Actions */}
@@ -452,6 +457,53 @@ export default function Users() {
           </div>
         </Card>
       </div>
+
+      {/* Document Preview Dialog */}
+      <Dialog
+        open={!!selectedDocument}
+        onOpenChange={(open) => !open && setSelectedDocument(null)}
+      >
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>{selectedDocument?.type} Document</DialogTitle>
+            <DialogDescription>
+              Preview of the uploaded document
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-4">
+            {selectedDocument?.url ? (
+              <div className="relative w-full h-[70vh] bg-gray-100 rounded-lg overflow-hidden">
+                <img
+                  src={selectedDocument.url}
+                  alt={`${selectedDocument.type} document`}
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    // Handle image loading errors
+                    const target = e.target as HTMLImageElement;
+                    target.onerror = null;
+                    target.src =
+                      "https://via.placeholder.com/600x400?text=Document+Not+Found";
+                  }}
+                />
+                <div className="absolute bottom-4 right-4">
+                  <a
+                    href={selectedDocument.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    Open in New Tab
+                  </a>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-40 bg-gray-100 rounded-lg">
+                <p className="text-gray-500">Document not available</p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // Use environment variable for API base URL
-const API_URL = import.meta.env.VITE_API_BASE_URL || "https://shipping-website-new.onrender.com/api";
+const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Get the authentication token from localStorage
 export const getAuthToken = (): string | null => {

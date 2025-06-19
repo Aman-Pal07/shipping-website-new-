@@ -10,7 +10,7 @@ const Home = () => {
     <div className="min-h-screen bg-white">
       <Navigation />
       <HeroSection />
-      <WhyChooseUs />
+      {/* <WhyChooseUs /> */}
       <Testimonials />
       <GlobalCoverage />
       <Footer />

@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Package, Check, X } from "lucide-react";
+import { Eye, EyeOff, Check, X } from "lucide-react";
 import { AppDispatch, RootState } from "../../store";
 import { registerUser } from "../../features/auth/authSlice";
+import { LiaTelegramPlane } from "react-icons/lia";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -79,21 +80,21 @@ export default function Register() {
         lastName: formData.lastName,
         email: formData.email,
         password: formData.password,
-        documents: validDocuments.map(doc => ({
+        documents: validDocuments.map((doc) => ({
           documentType: doc.documentType,
           file: doc.file!,
-          preview: doc.preview || ''
-        }))
+          preview: doc.preview || "",
+        })),
       };
-      
-      console.log('Submitting registration with data:', {
+
+      console.log("Submitting registration with data:", {
         email: registerData.email,
         documentCount: registerData.documents.length,
-        documentTypes: registerData.documents.map(d => d.documentType)
+        documentTypes: registerData.documents.map((d) => d.documentType),
       });
 
       const result = await dispatch(registerUser(registerData));
-      
+
       if (registerUser.fulfilled.match(result)) {
         const response = result.payload;
         localStorage.setItem("pendingVerificationEmail", formData.email);
@@ -101,7 +102,8 @@ export default function Register() {
         if (response.requiresVerification) {
           navigate("/verify-email", { state: { email: formData.email } });
         } else {
-          const redirectPath = response.user?.role === "admin" ? "/admin" : "/dashboard";
+          const redirectPath =
+            response.user?.role === "admin" ? "/admin" : "/dashboard";
           navigate(redirectPath);
         }
       }
@@ -208,7 +210,7 @@ export default function Register() {
         <div className="text-center">
           <div className="flex justify-center mb-6">
             <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
-              <Package className="h-8 w-8 text-white" />
+              <LiaTelegramPlane className="h-8 w-8 text-white" />
             </div>
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
