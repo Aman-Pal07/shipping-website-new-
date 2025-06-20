@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
   Search,
-  MapPin,
   Clock,
   Package,
   Truck,
@@ -9,7 +8,7 @@ import {
   Plus,
   Eye,
 } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { usePackageStatus } from "../../hooks/usePackageStatus";
 import { useAuth } from "../../hooks/useAuth";
 import { useDispatch, useSelector } from "react-redux";
@@ -18,7 +17,10 @@ import {
   createPackage,
   fetchMyPackages,
 } from "../../features/packages/packageSlice";
+import { Package as PackageType } from "../../types/package";
+import { fetchTransactionsByPackageId } from "../../features/transactions/transactionSlice";
 import { RootState } from "../../store";
+import { Transaction } from "../../types/transaction";
 import { formatDate } from "@/utils/formatDate";
 import { Button } from "@/components/ui/button";
 import {
@@ -52,6 +54,10 @@ export default function Track() {
     })
   );
 
+  const { transactions } = useSelector(
+    (state: RootState) => state.transactions
+  );
+
   const [trackingNumber, setTrackingNumber] = useState(idFromUrl || "");
   const { getStatusLabel } = usePackageStatus();
 
@@ -68,12 +74,52 @@ export default function Track() {
     customerEmail: "",
   });
 
-  const [selectedPackage, setSelectedPackage] = useState<any>(null);
+  const [selectedPackage, setSelectedPackage] = useState<PackageType | null>(
+    null
+  );
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isLoadingTransaction, setIsLoadingTransaction] = useState(false);
+
+  // Find transaction for the current package
+  const currentTransaction = transactions.find(
+    (t: Transaction) => t.packageId === selectedPackage?._id
+  );
+
+  // Merge package data with transaction data
+  const mergedPackage = selectedPackage
+    ? {
+        ...selectedPackage,
+        dimensions:
+          selectedPackage.dimensions || currentTransaction?.dimensions,
+        volumetricWeight:
+          selectedPackage.volumetricWeight ||
+          currentTransaction?.volumetricWeight,
+        volumetricWeightUnit:
+          selectedPackage.volumetricWeightUnit ||
+          currentTransaction?.volumetricWeightUnit,
+      }
+    : null;
 
   useEffect(() => {
     dispatch(fetchMyPackages());
   }, [dispatch]);
+
+  useEffect(() => {
+    const fetchTransactionData = async () => {
+      if (selectedPackage?._id) {
+        setIsLoadingTransaction(true);
+        try {
+          await dispatch(fetchTransactionsByPackageId(selectedPackage._id));
+        } catch (error) {
+          console.error("Error fetching transaction data:", error);
+        } finally {
+          setIsLoadingTransaction(false);
+        }
+      }
+    };
+
+    fetchTransactionData();
+  }, [dispatch, selectedPackage]);
 
   const handleOpenAddPackage = () => {
     setPackageData({
@@ -118,9 +164,9 @@ export default function Track() {
         weight: parseFloat(packageData.weight) || 0,
         weightUnit: packageData.weightUnit as "kg" | "lbs" | "g",
         content: packageData.content,
-        destinationAddress: "Shipping address",
+        destinationAddress: packageData.shippingAddress || "Shipping address",
         priority: "standard" as "standard" | "express" | "overnight",
-        customerEmail: "customer@example.com",
+        customerEmail: packageData.customerEmail || "customer@example.com",
       };
 
       const result = await dispatch(createPackage(packagePayload));
@@ -149,144 +195,165 @@ export default function Track() {
     }
   };
 
-  const renderPackageDetails = (pkg: any) => (
-    <div className="bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 p-4 sm:p-6 md:p-8">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8">
-        <div className="flex items-center space-x-4">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-            <Package className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+  const renderPackageDetails = (pkgRaw: PackageType) => {
+    const pkg = mergedPackage || pkgRaw;
+
+    if (isLoadingTransaction) {
+      return (
+        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8 text-center">
+          <div className="animate-pulse space-y-4">
+            <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto"></div>
           </div>
-          <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
-              Package Details
-            </h2>
-            <div className="space-y-1 text-xs sm:text-sm">
-              <p className="text-gray-500">
-                Tracking ID:{" "}
-                <span className="font-medium text-gray-700">
-                  {pkg.trackingId || "Processing..."}
-                </span>
-              </p>
-              <p className="text-gray-500">
-                Admin ID:{" "}
-                <span className="font-medium text-gray-700">
-                  {pkg.adminTrackingId || "Not assigned yet"}
-                </span>
+        </div>
+      );
+    }
+
+    return (
+      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 p-4 sm:p-6 md:p-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8">
+          <div className="flex items-center space-x-4">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+              <Package className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+            </div>
+            <div>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
+                Package Details
+              </h2>
+              <div className="space-y-1 text-xs sm:text-sm">
+                <p className="text-gray-500">
+                  Tracking ID:{" "}
+                  <span className="font-medium text-gray-700">
+                    {pkg.trackingId || "Processing..."}
+                  </span>
+                </p>
+                <p className="text-gray-500">
+                  Admin ID:{" "}
+                  <span className="font-medium text-gray-700">
+                    {pkg.adminTrackingId || "Processing..."}
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center space-x-3 mt-4 sm:mt-0">
+            <Link to="/dashboard/packages?status=dispatch">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl hover:bg-gray-100 transition-colors"
+              >
+                <Eye className="w-4 h-4 text-gray-600" />
+              </Button>
+            </Link>
+            <div className="text-right">
+              <p className="text-xs text-gray-500 mb-1">Volumetric Weight</p>
+              <p className="text-sm font-medium text-gray-700">
+                {pkg.volumetricWeight
+                  ? `${pkg.volumetricWeight} ${
+                      pkg.volumetricWeightUnit || "kg"
+                    }`
+                  : "Processing..."}
               </p>
             </div>
           </div>
         </div>
-        <div className="flex items-center space-x-3 mt-4 sm:mt-0">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl hover:bg-gray-100 transition-colors"
-            onClick={() => {
-              // Navigate to package details
-            }}
-          >
-            <Eye className="w-4 h-4 text-gray-600" />
-          </Button>
-          <div className="text-right">
-            <p className="text-xs text-gray-500 mb-1">Volumetric Weight</p>
-            <p className="text-sm font-medium text-gray-700">
+
+        <div className="bg-gray-50 rounded-2xl p-4 sm:p-6 mb-6">
+          <h3 className="text-sm font-semibold text-gray-700 mb-3">
+            Package Content
+          </h3>
+          <p className="text-gray-700 text-sm">
+            {pkg.content || "No content description provided"}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 sm:gap-6">
+          <div className="bg-gray-50 rounded-2xl p-4">
+            <div className="flex items-center space-x-2 mb-2">
+              <div className="w-2 h-2 rounded-full bg-blue-500" />
+              <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                Status
+              </h3>
+            </div>
+            <p className="font-semibold text-gray-900 text-sm">
+              {pkg.status ? getStatusLabel(pkg.status) : "Processing..."}
+            </p>
+          </div>
+
+          <div className="bg-gray-50 rounded-2xl p-4">
+            <div className="flex items-center space-x-2 mb-2">
+              <Clock className="w-3 h-3 text-gray-500" />
+              <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                Priority
+              </h3>
+            </div>
+            <p className="font-semibold text-gray-900 text-sm">
+              {pkg.priority || "Standard"}
+            </p>
+          </div>
+
+          <div className="bg-gray-50 rounded-2xl p-4">
+            <div className="flex items-center space-x-2 mb-2">
+              <Package className="w-3 h-3 text-gray-500" />
+              <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                Weight
+              </h3>
+            </div>
+            <p className="font-semibold text-gray-900 text-sm">
+              {pkg.weight
+                ? `${pkg.weight} ${pkg.weightUnit || "kg"}`
+                : "Processing..."}
+            </p>
+          </div>
+
+          <div className="bg-gray-50 rounded-2xl p-4">
+            <div className="flex items-center space-x-2 mb-2">
+              <CheckCircle className="w-3 h-3 text-gray-500" />
+              <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                Delivery
+              </h3>
+            </div>
+            <p className="font-semibold text-gray-900 text-sm">
+              {pkg.estimatedDelivery
+                ? formatDate(pkg.estimatedDelivery)
+                : "Processing..."}
+            </p>
+          </div>
+
+          <div className="bg-gray-50 rounded-2xl p-4">
+            <div className="flex items-center space-x-2 mb-2">
+              <Package className="w-3 h-3 text-gray-500" />
+              <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                Dimensions
+              </h3>
+            </div>
+            <p className="font-semibold text-gray-900 text-sm">
+              {pkg.dimensions
+                ? `${pkg.dimensions.length} × ${pkg.dimensions.width} × ${
+                    pkg.dimensions.height
+                  } ${pkg.dimensions.unit || "cm"}`
+                : "N/A"}
+            </p>
+          </div>
+
+          <div className="bg-gray-50 rounded-2xl p-4">
+            <div className="flex items-center space-x-2 mb-2">
+              <Package className="w-3 h-3 text-gray-500" />
+              <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                Vol. Weight
+              </h3>
+            </div>
+            <p className="font-semibold text-gray-900 text-sm">
               {pkg.volumetricWeight
-                ? `${pkg.volumetricWeight} ${pkg.volumetricWeightUnit || "kg"}`
+                ? `${pkg.volumetricWeight} ${pkg.volumetricWeightUnit || "cm"}`
                 : "N/A"}
             </p>
           </div>
         </div>
       </div>
-
-      {/* Content Section */}
-      <div className="bg-gray-50 rounded-2xl p-4 sm:p-6 mb-6">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">
-          Package Content
-        </h3>
-        <p className="text-gray-700 text-sm">
-          {pkg.content || "No content description provided"}
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 sm:gap-6">
-        <div className="bg-gray-50 rounded-2xl p-4">
-          <div className="flex items-center space-x-2 mb-2">
-            <div className="w-2 h-2 rounded-full bg-blue-500" />
-            <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-              Status
-            </h3>
-          </div>
-          <p className="font-semibold text-gray-900 text-sm">
-            {pkg.status ? getStatusLabel(pkg.status) : "Processing..."}
-          </p>
-        </div>
-
-        <div className="bg-gray-50 rounded-2xl p-4">
-          <div className="flex items-center space-x-2 mb-2">
-            <Clock className="w-3 h-3 text-gray-500" />
-            <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-              Priority
-            </h3>
-          </div>
-          <p className="font-semibold text-gray-900 text-sm">
-            {pkg.priority || "Standard"}
-          </p>
-        </div>
-
-        <div className="bg-gray-50 rounded-2xl p-4">
-          <div className="flex items-center space-x-2 mb-2">
-            <Package className="w-3 h-3 text-gray-500" />
-            <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-              Weight
-            </h3>
-          </div>
-          <p className="font-semibold text-gray-900 text-sm">
-            {pkg.weight
-              ? `${pkg.weight} ${pkg.weightUnit || "kg"}`
-              : "Processing..."}
-          </p>
-        </div>
-
-        <div className="bg-gray-50 rounded-2xl p-4">
-          <div className="flex items-center space-x-2 mb-2">
-            <MapPin className="w-3 h-3 text-gray-500" />
-            <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-              Destination
-            </h3>
-          </div>
-          <p className="font-semibold text-gray-900 text-sm">
-            {pkg.destinationAddress || "Processing..."}
-          </p>
-        </div>
-
-        <div className="bg-gray-50 rounded-2xl p-4">
-          <div className="flex items-center space-x-2 mb-2">
-            <Truck className="w-3 h-3 text-gray-500" />
-            <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-              Location
-            </h3>
-          </div>
-          <p className="font-semibold text-gray-900 text-sm">
-            {pkg.currentLocation || "Processing..."}
-          </p>
-        </div>
-
-        <div className="bg-gray-50 rounded-2xl p-4">
-          <div className="flex items-center space-x-2 mb-2">
-            <CheckCircle className="w-3 h-3 text-gray-500" />
-            <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-              Delivery
-            </h3>
-          </div>
-          <p className="font-semibold text-gray-900 text-sm">
-            {pkg.estimatedDelivery
-              ? formatDate(pkg.estimatedDelivery)
-              : "Processing..."}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -439,17 +506,16 @@ export default function Track() {
                     </td>
                     <td className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 whitespace-nowrap text-right">
                       <div className="flex justify-end space-x-3">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-blue-600 hover:text-blue-900 border-blue-200 hover:border-blue-300 hover:bg-blue-50 rounded-xl px-3 sm:px-4 py-1 sm:py-2 transition-all duration-200"
-                          onClick={() => {
-                            // Navigate to package tracking
-                          }}
-                        >
-                          <Truck className="h-4 w-4 mr-1 sm:mr-2" />
-                          Track
-                        </Button>
+                        <Link to="/dashboard/packages?status=dispatch">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-blue-600 hover:text-blue-900 border-blue-200 hover:border-blue-300 hover:bg-blue-50 rounded-xl px-3 sm:px-4 py-1 sm:py-2 transition-all duration-200"
+                          >
+                            <Truck className="h-4 w-4 mr-1 sm:mr-2" />
+                            Track
+                          </Button>
+                        </Link>
                         <Button
                           variant="outline"
                           size="sm"

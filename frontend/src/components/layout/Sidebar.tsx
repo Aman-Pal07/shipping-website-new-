@@ -39,6 +39,7 @@ interface User {
   username: string;
   email: string;
   firstName: string;
+  lastName?: string;
 }
 
 interface AuthContext {
@@ -72,7 +73,7 @@ interface SidebarProps {
 
 export default function Sidebar({ isCollapsed = false }: SidebarProps) {
   const location = useLocation();
-  const { user, logout, isAdmin } = useAuth() as AuthContext;
+  const { user, logout, isAdmin, isLoading } = useAuth() as AuthContext & { isLoading?: boolean };
   const [ordersOpen, setOrdersOpen] = useState<boolean>(true);
   const [packagesOpen, setPackagesOpen] = useState<boolean>(false);
   const [addressOpen, setAddressOpen] = useState<boolean>(false);
@@ -89,10 +90,6 @@ export default function Sidebar({ isCollapsed = false }: SidebarProps) {
     { code: "my", name: "Malaysia" },
     { code: "sg", name: "Singapore" },
   ];
-
-  const handleCountryClick = (countryCode: string) => {
-    setSelectedCountry(countryCode);
-  };
 
   // Check screen size and update responsive states
   useEffect(() => {
@@ -470,10 +467,19 @@ export default function Sidebar({ isCollapsed = false }: SidebarProps) {
                 isMobileView ? "w-10 h-10" : "w-11 h-11"
               )}
             >
-              <AvatarFallback className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white text-sm font-bold">
-                {user?.username
+              <AvatarFallback
+                className={cn(
+                  "bg-gradient-to-br from-blue-600 to-indigo-700 text-white font-bold",
+                  isMobileView ? "text-sm" : "text-base"
+                )}
+              >
+                {user?.firstName && user?.lastName
+                  ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase()
+                  : user?.username
                   ? user.username.slice(0, 2).toUpperCase()
-                  : "AM"}
+                  : user?.email
+                  ? user.email[0].toUpperCase()
+                  : "US"}
               </AvatarFallback>
             </Avatar>
             <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow-sm"></div>
@@ -482,10 +488,10 @@ export default function Sidebar({ isCollapsed = false }: SidebarProps) {
             <>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-gray-900 truncate">
-                  {user?.firstName ?? "Anonymous"}
+                  {isLoading ? 'Loading...' : user?.firstName || 'User'}
                 </p>
                 <p className="text-xs text-gray-500 truncate font-medium">
-                  {user?.email ?? "No email"}
+                  {isLoading ? 'Loading...' : user?.email || 'No email'}
                 </p>
               </div>
               <Button

@@ -69,21 +69,21 @@ export default function Footer() {
 
       {/* Main Footer Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-[8rem] mb-12">
           {/* Brand Section */}
           <div className="lg:col-span-4 space-y-6">
-            <div className="flex items-center space-x-3">
-              <div className="relative">
-                <div className="absolute inset-0 bg-blue-600 rounded-xl blur-sm opacity-50"></div>
-                <div className="relative w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center shadow-lg">
-                  <LiaTelegramPlane className="w-6 h-6 " />
-                </div>
-              </div>
-              <div>
-                <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                  PARCELUP
-                </h3>
-                <p className="text-sm">Shipping Excellence</p>
+            <div className="flex items-center group cursor-pointer">
+              <div className="flex items-center justify-center space-x-1 text-3xl font-extrabold">
+                <span className="text-blue-600">P</span>
+                <LiaTelegramPlane
+                  className="w-8 h-8 text-blue-600"
+                  strokeWidth={1.5}
+                />
+                <span className="text-blue-600">R</span>
+                <span className="text-blue-600">C</span>
+                <span className="text-blue-600">E</span>
+                <span className="text-blue-600">L</span>
+                <span className="text-black ml-1">UP</span>
               </div>
             </div>
 
@@ -164,16 +164,11 @@ export default function Footer() {
             <ul className="space-y-3">
               {services.map((service, index) => (
                 <li key={index}>
-                  <a
-                    href={service.href}
-                    className=" hover:text-green-400 transition-all duration-300 flex items-center group"
-                  >
-                    <ArrowRight className="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transform translate-x-0 group-hover:translate-x-1 transition-all duration-300" />
-                    <span className="relative">
-                      {service.name}
-                      <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-green-400 group-hover:w-full transition-all duration-300"></span>
-                    </span>
-                  </a>
+                  <ArrowRight className="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transform translate-x-0 group-hover:translate-x-1 transition-all duration-300" />
+                  <span className="relative">
+                    {service.name}
+                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-green-400 group-hover:w-full transition-all duration-300"></span>
+                  </span>
                 </li>
               ))}
             </ul>
@@ -230,17 +225,13 @@ export default function Footer() {
 
       {/* Enhanced Bottom Section */}
       <div className="relative z-10 border-t border-white/10 bg-black/20 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-6 py-6">
+        <div className="max-w-7xl mx-auto px-6 py-2">
           <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
             <div className="text-center lg:text-left">
               <p className="">
                 &copy; {currentYear}{" "}
                 <span className="font-semibold ">ParcelUp</span>. All rights
                 reserved.
-              </p>
-              <p className=" text-sm mt-1 flex items-center justify-center lg:justify-start">
-                <Shield className="w-4 h-4 mr-1 text-green-400" />
-                Trusted by 50,000+ businesses worldwide
               </p>
             </div>
 

@@ -158,7 +158,7 @@ const Footer = () => {
         </div>
 
         {/* Bottom Footer */}
-        <div className="py-6 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
+        <div className=" border-t border-gray-800 flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
           <p>&copy; 2024 GlobalShip. All rights reserved.</p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <a

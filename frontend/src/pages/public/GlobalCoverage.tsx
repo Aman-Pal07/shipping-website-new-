@@ -2,7 +2,7 @@ import { Globe } from "lucide-react";
 
 const GlobalCoverage = () => {
   return (
-    <section className="py-24 bg-gradient-to-br from-gray-50 to-white text-gray-800 overflow-hidden">
+    <section className="py-24 bg-gradient-to-br from-gray-50 to-white text-gray-800 overflow-hidden mt-[-100px]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header Section */}
         <div className="text-center  relative">
@@ -35,23 +35,6 @@ const GlobalCoverage = () => {
                   alt="World Map showing global shipping routes"
                   className="w-full h-full object-contain"
                 />
-              </div>
-
-              {/* Animated connection lines */}
-              <div className="absolute inset-0">
-                <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-blue-500 rounded-full animate-ping"></div>
-                <div
-                  className="absolute top-1/3 right-1/3 w-2 h-2 bg-green-500 rounded-full animate-ping"
-                  style={{ animationDelay: "1s" }}
-                ></div>
-                <div
-                  className="absolute bottom-1/3 left-1/2 w-2 h-2 bg-purple-500 rounded-full animate-ping"
-                  style={{ animationDelay: "2s" }}
-                ></div>
-                <div
-                  className="absolute top-1/2 right-1/4 w-2 h-2 bg-orange-500 rounded-full animate-ping"
-                  style={{ animationDelay: "3s" }}
-                ></div>
               </div>
             </div>
           </div>

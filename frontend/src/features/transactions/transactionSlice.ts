@@ -61,6 +61,19 @@ export const fetchTransactionById = createAsyncThunk<
   }
 });
 
+export const fetchTransactionsByPackageId = createAsyncThunk<
+  Transaction[],
+  string | number
+>("transactions/fetchByPackageId", async (packageId, { rejectWithValue }) => {
+  try {
+    return await transactionAPI.getTransactionsByPackageId(packageId);
+  } catch (error: any) {
+    return rejectWithValue(
+      error.response?.data?.message || "Failed to fetch transactions by package ID"
+    );
+  }
+});
+
 export const createTransaction = createAsyncThunk<
   Transaction,
   CreateTransactionData
@@ -275,6 +288,33 @@ const transactionsSlice = createSlice({
       .addCase(updateTransactionFields.pending, (state) => {
         state.isLoading = true;
         state.error = null;
+      })
+      // Fetch transactions by package ID
+      .addCase(fetchTransactionsByPackageId.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchTransactionsByPackageId.fulfilled, (state, action) => {
+        state.isLoading = false;
+        console.log('Fetched transactions by package ID:', action.payload);
+        
+        // Add the fetched transactions to the transactions array
+        // and ensure we don't have duplicates
+        action.payload.forEach(transaction => {
+          console.log('Processing transaction:', transaction._id, 'with dimensions:', transaction.dimensions);
+          const existingIndex = state.transactions.findIndex(t => t._id === transaction._id);
+          if (existingIndex === -1) {
+            state.transactions.push(transaction);
+          } else {
+            state.transactions[existingIndex] = transaction;
+          }
+        });
+        
+        console.log('Updated transactions in state:', state.transactions);
+      })
+      .addCase(fetchTransactionsByPackageId.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
       })
       .addCase(updateTransactionFields.fulfilled, (state, action) => {
         state.isLoading = false;

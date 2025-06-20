@@ -733,6 +733,50 @@ const updateTransactionFields = asyncHandler(async (req, res) => {
   res.status(200).json(populatedTransaction);
 });
 
+/**
+ * Get all transactions for a specific package
+ * @route GET /api/transactions/package/:packageId
+ */
+const getTransactionsByPackageId = asyncHandler(async (req, res) => {
+  if (!req.user) {
+    res.status(401);
+    throw new Error('Not authenticated');
+  }
+
+  const packageId = req.params.packageId;
+
+  if (!mongoose.Types.ObjectId.isValid(packageId)) {
+    res.status(400);
+    throw new Error('Invalid package ID');
+  }
+
+  try {
+    // Find all transactions for this package
+    const transactions = await Transaction.find({ packageId })
+      .populate('userId', 'firstName lastName email')
+      .sort({ createdAt: -1 });
+
+    // Format the response
+    const formattedTransactions = transactions.map(transaction => ({
+      ...transaction.toObject(),
+      dimensions: transaction.dimensions || {
+        width: 0,
+        height: 0,
+        length: 0,
+        unit: 'cm',
+      },
+      volumetricWeight: transaction.volumetricWeight || 0,
+      volumetricWeightUnit: transaction.volumetricWeightUnit || 'kg',
+    }));
+
+    res.status(200).json(formattedTransactions);
+  } catch (error) {
+    console.error('Error fetching transactions by package ID:', error);
+    res.status(500);
+    throw new Error('Error fetching transactions');
+  }
+});
+
 module.exports = {
   getAllTransactions,
   getUserTransactions,
@@ -743,4 +787,5 @@ module.exports = {
   updateTransactionDimensions,
   updateTransactionVolumetricWeight,
   updateTransactionFields,
+  getTransactionsByPackageId,
 };

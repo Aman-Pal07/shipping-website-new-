@@ -7,19 +7,19 @@ import {
   TrendingUp,
   ChevronRight,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useState } from "react";
 
 const ShippingFeatures = () => {
-  const [hoveredCard, setHoveredCard] = useState(null);
+  const [hoveredCard, setHoveredCard] = useState<number | null>(null);
 
   const features = [
     {
       id: 1,
       icon: Package,
-      title: "AI-Powered Real-Time Tracking",
+      title: "Ship Your Products to Our Warehouses",
       description:
-        "Experience unprecedented visibility with machine learning-enhanced tracking that predicts delays and optimizes delivery routes in real-time.",
+        "find our international warehouse addresses in your panel when you login/register.",
       gradient: "from-blue-500 to-blue-700",
       border: "hover:border-blue-200",
       bgGradient: "from-blue-100 to-blue-200",
@@ -35,9 +35,9 @@ const ShippingFeatures = () => {
     {
       id: 2,
       icon: BarChart3,
-      title: "Smart Analytics Dashboard",
+      title: "Upload Tracking Details on the Panel",
       description:
-        "Transform data into actionable insights with advanced analytics that drive cost reduction and operational excellence across your supply chain.",
+        "Upload all the tracking details associated with your shipment on the “Track Package” section on the panel.",
       gradient: "from-purple-500 to-purple-700",
       border: "hover:border-purple-200",
       bgGradient: "from-purple-100 to-purple-200",
@@ -50,9 +50,9 @@ const ShippingFeatures = () => {
     {
       id: 3,
       icon: Route,
-      title: "On time arrival and accurate pricing",
+      title: "Payment on arrival ",
       description:
-        "We value your time and trust, which is why we ensure every service is delivered promptly and every price is transparent with no hidden fees. ",
+        "Sit back and relax as our team works to deliver the shipment to your doorstep within 5-15 days. ",
       gradient: "from-pink-500 to-pink-700",
       border: "hover:border-pink-200",
       bgGradient: "from-pink-100 to-pink-200",

@@ -197,9 +197,25 @@ export const transactionAPI = {
   getCompletedTransactionsByPackage: async (
     packageId: number | string
   ): Promise<Transaction[]> => {
-    const response = await api.get(
-      `/completed-transactions/package/${packageId}`
-    );
-    return response.data;
+    return api
+      .get(`/transactions/package/${packageId}/completed`)
+      .then((response) => response.data);
+  },
+
+  // Get all transactions for a specific package
+  getTransactionsByPackageId: async (
+    packageId: number | string
+  ): Promise<Transaction[]> => {
+    console.log(`Fetching transactions for package ${packageId}...`);
+    return api
+      .get(`/transactions/package/${packageId}`)
+      .then((response) => {
+        console.log(`Transactions for package ${packageId}:`, response.data);
+        return response.data;
+      })
+      .catch((error) => {
+        console.error(`Error fetching transactions for package ${packageId}:`, error);
+        throw error;
+      });
   },
 };

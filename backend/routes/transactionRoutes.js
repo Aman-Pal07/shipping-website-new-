@@ -24,6 +24,7 @@ const {
   updateTransactionDimensions,
   updateTransactionVolumetricWeight,
   updateTransactionFields,
+  getTransactionsByPackageId,
 } = require("../controllers/transactionController");
 
 const router = express.Router();
@@ -72,6 +73,13 @@ router.put(
   authenticateToken,
   isAdmin,
   updateTransactionFields
+);
+
+// Get all transactions for a specific package
+router.get(
+  "/package/:packageId",
+  authenticateToken,
+  getTransactionsByPackageId
 );
 
 module.exports = router;

@@ -13,6 +13,8 @@ export interface Package {
   userId: number;
   weight: string;
   weightUnit?: string;
+  volumetricWeight?: number;
+  volumetricWeightUnit?: string;
   content?: string; // Added content field
   dimensions?: Dimensions;
   status:

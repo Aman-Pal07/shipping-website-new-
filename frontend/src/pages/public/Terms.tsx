@@ -123,26 +123,11 @@ const Terms = () => {
         <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] -z-10" />
 
         <motion.div
-          className="max-w-6xl mx-auto px-6 py-16"
+          className="max-w-6xl mx-auto px-6 py-5"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
-          {/* Header */}
-          <motion.div className="text-center mb-16" variants={itemVariants}>
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl mb-6 shadow-lg">
-              <FileText className="w-10 h-10 text-white" />
-            </div>
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-4">
-              Terms & Conditions
-            </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              Please read these terms and conditions carefully before using our
-              shipping and logistics services.
-            </p>
-          </motion.div>
-
-          {/* Terms Sections */}
           <motion.div className="grid gap-8 mb-16" variants={containerVariants}>
             {sections.map((section) => {
               const IconComponent = section.icon;

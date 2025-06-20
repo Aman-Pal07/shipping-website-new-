@@ -6,7 +6,6 @@ import {
   Eye,
   ArrowUpRight,
   Truck,
-  MapPin,
 } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../store";
@@ -239,12 +238,7 @@ export default function UserOverview() {
                       <TableHead className="font-semibold text-gray-700">
                         Status
                       </TableHead>
-                      <TableHead className="font-semibold text-gray-700">
-                        <div className="flex items-center gap-1">
-                          <MapPin className="h-4 w-4" />
-                          Destination
-                        </div>
-                      </TableHead>
+
                       <TableHead className="text-right font-semibold text-gray-700">
                         Actions
                       </TableHead>
@@ -270,11 +264,7 @@ export default function UserOverview() {
                             {getStatusLabel(pkg.status)}
                           </Badge>
                         </TableCell>
-                        <TableCell className="max-w-[200px]">
-                          <div className="truncate text-gray-600 font-medium">
-                            {pkg.destinationAddress || "Not specified"}
-                          </div>
-                        </TableCell>
+
                         <TableCell className="text-right">
                           <Link to={`/dashboard/track?id=${pkg.trackingId}`}>
                             <Button

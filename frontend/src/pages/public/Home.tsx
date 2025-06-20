@@ -3,7 +3,6 @@ import GlobalCoverage from "./GlobalCoverage";
 import HeroSection from "./HeroSection";
 import Navigation from "./Navigation";
 import Testimonials from "./Testimonials";
-import WhyChooseUs from "./WhyChooseUs";
 
 const Home = () => {
   return (

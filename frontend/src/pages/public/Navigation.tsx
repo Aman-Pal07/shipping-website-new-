@@ -22,7 +22,7 @@ const Navigation = () => {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${
+      className={`relative top-0 left-0 right-0 z-50 transition-all duration-700 ${
         isScrolled
           ? "bg-white/98 backdrop-blur-xl shadow-2xl border-b border-blue-100/30"
           : "bg-white/95 backdrop-blur-lg shadow-lg"
@@ -44,20 +44,15 @@ const Navigation = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
-          <div className="flex items-center space-x-4 group cursor-pointer">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-100/50 to-blue-200/30 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
-              <div className="relative bg-gradient-to-br from-blue-600 to-blue-800 p-4 rounded-2xl shadow-lg transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 border border-blue-200/30">
-                <LiaTelegramPlane className="h-8 w-8 text-white" />
-              </div>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-3xl font-bold bg-gradient-to-r from-blue-800 to-blue-600 bg-clip-text text-transparent drop-shadow-sm">
-                PARCEL
-              </span>
-              <span className="text-sm text-blue-600 font-medium tracking-wide">
-                Worldwide Logistics
-              </span>
+          <div className="flex items-center group cursor-pointer">
+            <div className="flex items-center justify-center space-x-1 text-3xl font-extrabold">
+              <span className="text-blue-600">P</span>
+              <LiaTelegramPlane className="w-8 h-8 text-blue-600" strokeWidth={1.5} />
+              <span className="text-blue-600">R</span>
+              <span className="text-blue-600">C</span>
+              <span className="text-blue-600">E</span>
+              <span className="text-blue-600">L</span>
+              <span className="text-black ml-1">UP</span>
             </div>
           </div>
 
