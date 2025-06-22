@@ -88,25 +88,21 @@ export default function AdminSidebar({
           name: "Waiting",
           href: "/admin/orders?status=waiting",
           icon: Clock,
-          count: 12,
         },
         {
           name: "In Transit",
           href: "/admin/orders?status=in_transit",
           icon: Truck,
-          count: 8,
         },
         {
           name: "India",
           href: "/admin/orders?status=india",
           icon: Plane,
-          count: 5,
         },
         {
           name: "Dispatch",
           href: "/admin/orders?status=dispatch",
           icon: CheckCircle,
-          count: 3,
         },
       ],
     },
@@ -148,20 +144,19 @@ export default function AdminSidebar({
       )}
     >
       {/* Logo/Brand */}
-      <div className="p-6 border-b border-gray-50">
-        <div className="flex items-center space-x-3">
-          <div className="relative">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/25">
-              <Package className="text-white w-6 h-6" />
-            </div>
-            <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow-sm"></div>
-          </div>
+      <div
+        className={cn("border-b border-gray-50", isCollapsed ? "p-4" : "p-6")}
+      >
+        <div className="flex items-center">
           {!isCollapsed && (
-            <div>
-              <h1 className="text-xl font-bold text-gray-900 tracking-tight">
-                PackageTracker
-              </h1>
-              <p className="text-sm text-gray-500 font-medium">Admin Panel</p>
+            <div className="w-full">
+              <div className="flex items-center">
+                <img
+                  src="/e2.png"
+                  alt="PARCELUP Logo"
+                  className="h-10 w-auto"
+                />
+              </div>
             </div>
           )}
         </div>

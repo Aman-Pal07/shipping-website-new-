@@ -12,7 +12,7 @@ const GlobalCoverage = () => {
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-blue-500 to-purple-600  shadow-lg">
             <Globe className="h-10 w-10 text-white" />
           </div>
-          <h2 className="text-5xl font-bold mb-6 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+          <h2 className="text-5xl font-bold mb-6 p-[8px] bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
             Global Coverage
           </h2>
           <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">

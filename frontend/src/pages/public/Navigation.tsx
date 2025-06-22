@@ -1,33 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Menu, X } from "lucide-react";
-import { LiaTelegramPlane } from "react-icons/lia";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
 
   const navItems = [
     { label: "Login", href: "/login" },
     { label: "Register", href: "/register" },
   ];
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   return (
-    <nav
-      className={`relative top-0 left-0 right-0 z-50 transition-all duration-700 ${
-        isScrolled
-          ? "bg-white/98 backdrop-blur-xl shadow-2xl border-b border-blue-100/30"
-          : "bg-white/95 backdrop-blur-lg shadow-lg"
-      }`}
-    >
+    <nav className={`fixed top-0 left-0 right-0 z-50 bg-white`}>
       {/* Subtle animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-10 -left-10 w-40 h-40 bg-blue-50/30 rounded-full blur-3xl animate-pulse"></div>
@@ -44,16 +27,8 @@ const Navigation = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
-          <div className="flex items-center group cursor-pointer">
-            <div className="flex items-center justify-center space-x-1 text-3xl font-extrabold">
-              <span className="text-blue-600">P</span>
-              <LiaTelegramPlane className="w-8 h-8 text-blue-600" strokeWidth={1.5} />
-              <span className="text-blue-600">R</span>
-              <span className="text-blue-600">C</span>
-              <span className="text-blue-600">E</span>
-              <span className="text-blue-600">L</span>
-              <span className="text-black ml-1">UP</span>
-            </div>
+          <div className="group cursor-pointer">
+            <img src="/e2.png" alt="PARCELUP Logo" className="h-16 w-25  " />
           </div>
 
           {/* Desktop Navigation */}
@@ -109,10 +84,8 @@ const Navigation = () => {
 
         {/* Mobile Navigation */}
         <div
-          className={`md:hidden transition-all duration-700 ease-in-out ${
-            isMenuOpen
-              ? "max-h-screen opacity-100 pb-6"
-              : "max-h-0 opacity-0 overflow-hidden"
+          className={`md:hidden fixed left-0 right-0 bg-white shadow-lg transition-all duration-300 ${
+            isMenuOpen ? "top-20 opacity-100" : "-top-full opacity-0"
           }`}
         >
           <div className="bg-white/98 backdrop-blur-xl border border-blue-200/30 rounded-3xl mx-4 shadow-2xl overflow-hidden">

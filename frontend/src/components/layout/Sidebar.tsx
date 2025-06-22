@@ -31,7 +31,6 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "../ui/collapsible";
-import { LiaTelegramPlane } from "react-icons/lia";
 import { AddressModal } from "../address/AddressModal";
 
 // Define types for user and auth context
@@ -73,7 +72,9 @@ interface SidebarProps {
 
 export default function Sidebar({ isCollapsed = false }: SidebarProps) {
   const location = useLocation();
-  const { user, logout, isAdmin, isLoading } = useAuth() as AuthContext & { isLoading?: boolean };
+  const { user, logout, isAdmin, isLoading } = useAuth() as AuthContext & {
+    isLoading?: boolean;
+  };
   const [ordersOpen, setOrdersOpen] = useState<boolean>(true);
   const [packagesOpen, setPackagesOpen] = useState<boolean>(false);
   const [addressOpen, setAddressOpen] = useState<boolean>(false);
@@ -258,41 +259,21 @@ export default function Sidebar({ isCollapsed = false }: SidebarProps) {
     <>
       {/* Logo/Brand */}
       <div
-        className={cn("border-b border-gray-50", isMobileView ? "p-4" : "p-6")}
+        className={cn(
+          "border-b border-gray-50",
+          isMobileView ? "pl-2 pr-4 py-4" : "pl-4 pr-6 py-6"
+        )}
       >
-        <div className="flex items-center space-x-3">
-          <div className="relative">
-            <div
-              className={cn(
-                "bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/25",
-                isMobileView || isCollapsed ? "w-10 h-10" : "w-12 h-12"
-              )}
-            >
-              <LiaTelegramPlane
-                className={cn(
-                  "text-white",
-                  isMobileView || isCollapsed ? "w-5 h-5" : "w-6 h-6"
-                )}
-              />
-            </div>
-            <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow-sm"></div>
-          </div>
+        <div className="flex items-center">
           {(!isCollapsed || isMobileView) && (
-            <div>
-              <h1
-                className={cn(
-                  "font-bold text-gray-900 tracking-tight",
-                  isMobileView ? "text-lg" : "text-xl"
-                )}
-              >
-                <span className="text-gradient-to-br from-blue-600 via-indigo-600 to-purple-700">
-                  PARCEL
-                </span>
-                UP
-              </h1>
-              <p className="text-sm text-gray-500 font-medium">
-                {isAdmin ? "Admin Panel" : "User Portal"}
-              </p>
+            <div className="w-full">
+              <div className="flex items-center">
+                <img
+                  src="/e2.png"
+                  alt="PARCELUP Logo"
+                  className="h-10 w-auto -ml-2"
+                />
+              </div>
             </div>
           )}
         </div>
@@ -488,10 +469,10 @@ export default function Sidebar({ isCollapsed = false }: SidebarProps) {
             <>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-gray-900 truncate">
-                  {isLoading ? 'Loading...' : user?.firstName || 'User'}
+                  {isLoading ? "Loading..." : user?.firstName || "User"}
                 </p>
                 <p className="text-xs text-gray-500 truncate font-medium">
-                  {isLoading ? 'Loading...' : user?.email || 'No email'}
+                  {isLoading ? "Loading..." : user?.email || "No email"}
                 </p>
               </div>
               <Button

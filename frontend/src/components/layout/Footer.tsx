@@ -4,14 +4,11 @@ import {
   ArrowRight,
   Facebook,
   Instagram,
-  Twitter,
-  Linkedin,
   Globe,
   Clock,
   Shield,
   Package,
 } from "lucide-react";
-import { LiaTelegramPlane } from "react-icons/lia";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -40,15 +37,18 @@ export default function Footer() {
   ];
 
   const socialLinks = [
-    { name: "Facebook", icon: Facebook, href: "#", color: "hover:bg-blue-600" },
+    {
+      name: "Facebook",
+      icon: Facebook,
+      href: " https://www.facebook.com/share/1GCk6d8c7T/?mibextid=wwXIfr ",
+      color: "hover:bg-blue-600",
+    },
     {
       name: "Instagram",
       icon: Instagram,
-      href: "#",
+      href: "https://www.instagram.com/parcelup.in?igsh=MTEyczlmNTY5MWtocA==",
       color: "hover:bg-pink-600",
     },
-    { name: "Twitter", icon: Twitter, href: "#", color: "hover:bg-blue-400" },
-    { name: "LinkedIn", icon: Linkedin, href: "#", color: "hover:bg-blue-700" },
   ];
 
   const features = [
@@ -59,7 +59,7 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="relative bg-gradient-to-br bg-white text-gray-900 overflow-hidden">
+    <footer className="relative bg-gradient-to-br bg-white text-gray-900">
       {/* Background Pattern */}
       <div className="absolute inset-0">
         <div className="absolute top-0 left-0 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl"></div>
@@ -69,22 +69,11 @@ export default function Footer() {
 
       {/* Main Footer Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-[8rem] mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12">
           {/* Brand Section */}
-          <div className="lg:col-span-4 space-y-6">
-            <div className="flex items-center group cursor-pointer">
-              <div className="flex items-center justify-center space-x-1 text-3xl font-extrabold">
-                <span className="text-blue-600">P</span>
-                <LiaTelegramPlane
-                  className="w-8 h-8 text-blue-600"
-                  strokeWidth={1.5}
-                />
-                <span className="text-blue-600">R</span>
-                <span className="text-blue-600">C</span>
-                <span className="text-blue-600">E</span>
-                <span className="text-blue-600">L</span>
-                <span className="text-black ml-1">UP</span>
-              </div>
+          <div className="lg:col-span-4 space-y-3">
+            <div className="flex items-center -ml-7">
+              <img src="/e2.png" alt="PARCELUP Logo" className="h-16 w-auto" />
             </div>
 
             <p className="text-gray-800 leading-relaxed max-w-md">
@@ -198,7 +187,7 @@ export default function Footer() {
                 </div>
                 <div>
                   <p className="text-gray-400 text-sm">Email Us</p>
-                  <p className=" font-medium">info@parcelup.com</p>
+                  <p className=" font-medium">info@parcelup.in</p>
                 </div>
               </div>
             </div>

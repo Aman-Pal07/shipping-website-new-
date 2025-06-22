@@ -13,7 +13,7 @@ export default function AdminLayout() {
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Admin Header */}
         <header className="bg-white shadow-sm border-b border-gray-200/60 z-10 ">
-          <div className="px-6 py-[28px] flex items-center justify-between">
+          <div className="px-6 py-[25px] flex items-center justify-between">
             <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 via-blue-800 to-indigo-800 bg-clip-text text-transparent">
               Admin Dashboard
             </h1>
