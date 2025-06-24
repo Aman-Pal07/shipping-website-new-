@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Razorpay Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .container {
+      border: 1px solid #ddd;
+      padding: 20px;
+      border-radius: 8px;
+    }
+    button {
+      background-color: #3399cc;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background-color: #f9f9f9;
+      min-height: 100px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Razorpay Integration Test</h1>
+    <p>This page tests the Razorpay integration for the shipping website.</p>
+    
+    <button id="testRazorpay">Test Razorpay Checkout</button>
+    
+    <div class="result" id="result">
+      <p>Results will appear here...</p>
+    </div>
+  </div>
+
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script>
+    document.getElementById('testRazorpay').addEventListener('click', async () => {
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = '<p>Creating order...</p>';
+      
+      try {
+        // Create a test order
+        const orderResponse = await fetch('/api/payments/create-order', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            amount: 1000, // ₹10.00
+            description: 'Test payment for Razorpay integration',
+          }),
+        });
+        
+        if (!orderResponse.ok) {
+          throw new Error('Failed to create order');
+        }
+        
+        const orderData = await orderResponse.json();
+        resultDiv.innerHTML += `<p>Order created: ${orderData.orderId}</p>`;
+        
+        // Open Razorpay checkout
+        const options = {
+          key: orderData.keyId,
+          amount: orderData.amount,
+          currency: orderData.currency || 'INR',
+          name: 'Shipping Website',
+          description: 'Test Payment',
+          order_id: orderData.orderId,
+          handler: async function(response) {
+            resultDiv.innerHTML += `<p>Payment successful!</p>`;
+            resultDiv.innerHTML += `<p>Payment ID: ${response.razorpay_payment_id}</p>`;
+            resultDiv.innerHTML += `<p>Order ID: ${response.razorpay_order_id}</p>`;
+            
+            // Verify the payment
+            try {
+              const verifyResponse = await fetch('/api/payments/verify', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  orderId: response.razorpay_order_id,
+                  paymentId: response.razorpay_payment_id,
+                  signature: response.razorpay_signature,
+                  transactionId: orderData.transactionId,
+                }),
+              });
+              
+              if (!verifyResponse.ok) {
+                throw new Error('Payment verification failed');
+              }
+              
+              const verifyData = await verifyResponse.json();
+              resultDiv.innerHTML += `<p>Payment verified: ${verifyData.success ? 'Success' : 'Failed'}</p>`;
+            } catch (verifyError) {
+              resultDiv.innerHTML += `<p>Error verifying payment: ${verifyError.message}</p>`;
+            }
+          },
+          prefill: {
+            name: 'Test User',
+            email: 'test@example.com',
+            contact: '9999999999',
+          },
+          theme: {
+            color: '#3399cc',
+          },
+        };
+        
+        const razorpay = new Razorpay(options);
+        razorpay.on('payment.failed', function(response) {
+          resultDiv.innerHTML += `<p>Payment failed: ${response.error.description}</p>`;
+        });
+        
+        razorpay.open();
+      } catch (error) {
+        resultDiv.innerHTML = `<p>Error: ${error.message}</p>`;
+      }
+    });
+  </script>
+</body>
+</html>
