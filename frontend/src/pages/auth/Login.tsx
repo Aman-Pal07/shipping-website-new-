@@ -66,8 +66,17 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div
+      className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative"
+      style={{
+        backgroundImage:
+          "url('https://images.unsplash.com/photo-1587293852726-70cdb56c2866?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8d2FyZWhvdXNlfGVufDB8fDB8fHww')",
+      }}
+    >
+      {/* Dark overlay for better readability */}
+      <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+
+      <div className="max-w-md w-full space-y-8 relative z-10">
         {/* Header Section */}
         <div className="text-center">
           <div className="flex justify-center mb-6">
@@ -75,16 +84,14 @@ export default function Login() {
               <LiaTelegramPlane className="h-8 w-8 text-white" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome Back
-          </h1>
-          <p className="text-gray-600 mb-6">
+          <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
+          <p className="text-gray-200 mb-6">
             Sign in to continue to your account
           </p>
         </div>
 
         {/* Form Card */}
-        <div className="bg-white border border-gray-200 rounded-3xl shadow-xl p-8 space-y-6">
+        <div className="bg-white/95 backdrop-blur-sm border border-gray-200 rounded-3xl shadow-xl p-8 space-y-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm font-medium">
@@ -192,23 +199,23 @@ export default function Login() {
 
         {/* Footer */}
         <div className="text-center space-y-4">
-          <p className="text-gray-600">
+          <p className="text-gray-200">
             Don't have an account?{" "}
             <Link
               to="/register"
-              className="text-blue-600 hover:text-blue-700 font-semibold"
+              className="text-blue-300 hover:text-blue-200 font-semibold"
             >
               Create one here
             </Link>
           </p>
 
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-300">
             By signing in, you agree to our{" "}
-            <Link to="/terms" className="text-blue-600 hover:text-blue-700">
+            <Link to="/terms" className="text-blue-300 hover:text-blue-200">
               Terms of Service
             </Link>{" "}
             and{" "}
-            <Link to="/privacy" className="text-blue-600 hover:text-blue-700">
+            <Link to="/privacy" className="text-blue-300 hover:text-blue-200">
               Privacy Policy
             </Link>
           </p>

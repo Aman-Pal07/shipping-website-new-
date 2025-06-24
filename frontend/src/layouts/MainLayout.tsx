@@ -6,12 +6,12 @@ import Header from "../components/layout/Header";
 export default function MainLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const location = useLocation();
-  
+
   // Determine the title based on the current path
   const getTitle = () => {
     const path = location.pathname;
     if (path === "/") return "Home";
-    if (path === "/about") return "About";
+    if (path === "/about") return "About Us";
     if (path === "/terms") return "Terms & Conditions";
     if (path === "/login") return "Login";
     if (path === "/register") return "Register";
@@ -19,7 +19,7 @@ export default function MainLayout() {
     if (path === "/track") return "Track Package";
     if (path.includes("/dashboard")) return "Dashboard";
     if (path.includes("/admin")) return "Admin Panel";
-    return "Package Tracker";
+    return "Parcel Up";
   };
 
   return (

@@ -8,7 +8,7 @@ export const apiRequest = async <T = any>(
   data?: any,
   config?: any
 ): Promise<T> => {
-  try {
+  try { //hello
     const response = await api({
       method,
       url,

@@ -43,6 +43,7 @@ import UserTrack from "../pages/user/Track";
 import UserTransactions from "../pages/user/Transactions";
 import PackagesByStatusPage from "../pages/user/PackagesByStatusPage";
 import UserPersonalDetails from "../pages/dashboard/UserPersonalDetails";
+import Services from "../pages/user/Services";
 
 const AppRoutes = () => {
   const { isAuthenticated, userRole } = useSelector(
@@ -106,6 +107,7 @@ const AppRoutes = () => {
         {/* Public Routes */}
         <Route path="/about" element={<About />} />
         <Route path="/terms" element={<Terms />} />
+        <Route path="/services" element={<Services />} />
 
         {/* User Routes */}
         <Route
