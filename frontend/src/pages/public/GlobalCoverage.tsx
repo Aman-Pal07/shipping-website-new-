@@ -9,13 +9,13 @@ const GlobalCoverage = () => {
           <div className="absolute inset-0 -z-10">
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-100 rounded-full opacity-20 blur-3xl"></div>
           </div>
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-blue-500 to-purple-600  shadow-lg">
+          <div className="inline-flex mb-4 items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-600  shadow-lg">
             <Globe className="h-10 w-10 text-white" />
           </div>
-          <h2 className="text-5xl font-bold mb-6 p-[8px] bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+          <h2 className="text-5xl font-bold mb-4 pb-4 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
             Global Coverage
           </h2>
-          <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
             Our extensive network spans across all continents, connecting your
             business to every corner of the world with reliable shipping
             solutions and unmatched global reach.

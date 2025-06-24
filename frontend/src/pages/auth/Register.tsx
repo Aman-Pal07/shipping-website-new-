@@ -205,7 +205,13 @@ export default function Register() {
     formData.confirmPassword.length > 0;
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div
+      className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative"
+      style={{
+        backgroundImage:
+          "url('https://images.unsplash.com/photo-1605732562084-f528a2154616?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTZ8fHNoaXBwaW5nfGVufDB8MXwwfHx8MA%3D%3D')",
+      }}
+    >
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <div className="flex justify-center mb-6">
@@ -213,10 +219,10 @@ export default function Register() {
               <LiaTelegramPlane className="h-8 w-8 text-white" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-white mb-2">
             Create Your Account
           </h1>
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-200 mb-6">
             Sign up to get started with our platform
           </p>
         </div>
@@ -569,23 +575,23 @@ export default function Register() {
         </div>
 
         <div className="text-center space-y-4">
-          <p className="text-gray-600">
+          <p className="text-gray-200">
             Already have an account?{" "}
             <Link
               to="/login"
-              className="text-blue-600 hover:text-blue-700 font-semibold"
+              className="text-blue-300 hover:text-blue-700 font-semibold"
             >
               Sign in here
             </Link>
           </p>
 
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-300">
             By signing up, you agree to our{" "}
-            <Link to="/terms" className="text-blue-600 hover:text-blue-700">
+            <Link to="/terms" className="text-blue-300 hover:text-blue-500">
               Terms of Service
             </Link>{" "}
             and{" "}
-            <Link to="/privacy" className="text-blue-600 hover:text-blue-700">
+            <Link to="/privacy" className="text-blue-300 hover:text-blue-500">
               Privacy Policy
             </Link>
           </p>
