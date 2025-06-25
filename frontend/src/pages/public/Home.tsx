@@ -3,9 +3,6 @@ import GlobalCoverage from "./GlobalCoverage";
 import HeroSection from "./HeroSection";
 import Navigation from "./Navigation";
 import Testimonials from "./Testimonials";
-import Faq from "./Faq";
-import Services from "../user/Services";
-import Core from "./Core";
 
 const Home = () => {
   return (
@@ -14,10 +11,7 @@ const Home = () => {
       <HeroSection />
       {/* <WhyChooseUs /> */}
       <Testimonials />
-      <Services />
       <GlobalCoverage />
-      <Faq />
-      <Core />
       <Footer />
     </div>
   );

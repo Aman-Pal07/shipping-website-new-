@@ -34,12 +34,12 @@ export default function Hero() {
       </nav>
 
       {/* Hero Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 pt-7 pb-22">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 pt-16 pb-32">
         <div className="grid lg:grid-cols-2 gap-16 items-center min-h-[600px]">
           {/* Left Content */}
-          <div className="space-y-8">
-            <div className="space-y-6">
-              <div className="space-y-4">
+          <div className="space-y-12">
+            <div className="space-y-8">
+              <div className="space-y-6">
                 <h1 className="text-6xl lg:text-8xl font-black leading-tight">
                   <span className="bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent block drop-shadow-2xl">
                     Ship

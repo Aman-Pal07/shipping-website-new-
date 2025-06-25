@@ -17,8 +17,8 @@ export default function Footer() {
     { name: "Home", href: "/" },
     { name: "About Us", href: "/about" },
     { name: "Track Package", href: "/dashboard/track" },
-    { name: "Pricing", href: "/register" },
-    // { name: "Contact", href: "/contact" },
+    { name: "Pricing", href: "/pricing" },
+    { name: "Contact", href: "/contact" },
   ];
 
   const services = [
@@ -68,10 +68,10 @@ export default function Footer() {
       </div>
 
       {/* Main Footer Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-18 py-16">
-        <div className="flex flex-col lg:flex-row justify-between gap-20">
-          {/* Brand Section - Left Aligned */}
-          <div className="lg:w-1/3 space-y-4">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12">
+          {/* Brand Section */}
+          <div className="lg:col-span-4 space-y-3">
             <div className="flex items-center -ml-7">
               <img src="/e2.png" alt="PARCELUP Logo" className="h-16 w-auto" />
             </div>
@@ -120,100 +120,92 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Right Side Columns - Equal Spacing */}
-          <div className="lg:w-2/3 grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Quick Links */}
-            <div>
-              <h4 className="text-lg font-semibold mb-6 ml-4 flex items-center">
-                <div className="w-1 h-6 bg-gradient-to-b from-blue-400 to-purple-400 rounded-full mr-3"></div>
-                Quick Links
-              </h4>
-              <ul className="space-y-3">
-                {quickLinks.map((link, index) => (
-                  <li key={index}>
-                    <a
-                      href={link.href}
-                      className=" hover:text-blue-400 transition-all duration-300 flex items-center group"
-                    >
-                      <ArrowRight className="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transform translate-x-0 group-hover:translate-x-1 transition-all duration-300" />
-                      <span className="relative">
-                        {link.name}
-                        <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 group-hover:w-full transition-all duration-300"></span>
-                      </span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
+          {/* Quick Links */}
+          <div className="lg:col-span-2">
+            <h4 className="text-lg font-semibold mb-6  flex items-center">
+              <div className="w-1 h-6 bg-gradient-to-b from-blue-400 to-purple-400 rounded-full mr-3"></div>
+              Quick Links
+            </h4>
+            <ul className="space-y-3">
+              {quickLinks.map((link, index) => (
+                <li key={index}>
+                  <a
+                    href={link.href}
+                    className=" hover:text-blue-400 transition-all duration-300 flex items-center group"
+                  >
+                    <ArrowRight className="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transform translate-x-0 group-hover:translate-x-1 transition-all duration-300" />
+                    <span className="relative">
+                      {link.name}
+                      <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 group-hover:w-full transition-all duration-300"></span>
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-            {/* Services */}
-            <div>
-              <h4 className="text-lg font-semibold mb-6  flex items-center ml-4">
-                <div className="w-1 h-6 bg-gradient-to-b from-green-400 to-blue-400 rounded-full mr-3"></div>
-                Services
-              </h4>
-              <ul className="space-y-3">
-                {services.map((service, index) => (
-                  <li key={index}>
-                    <a
-                      href={service.href}
-                      className=" hover:text-green-400 transition-all duration-300 flex items-center group"
-                    >
-                      <ArrowRight className="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transform translate-x-0 group-hover:translate-x-1 transition-all duration-300" />
-                      <span className="relative">
-                        {service.name}
-                        <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-green-400 group-hover:w-full transition-all duration-300"></span>
-                      </span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
+          {/* Services */}
+          <div className="lg:col-span-2">
+            <h4 className="text-lg font-semibold mb-6  flex items-center">
+              <div className="w-1 h-6 bg-gradient-to-b from-green-400 to-blue-400 rounded-full mr-3"></div>
+              Services
+            </h4>
+            <ul className="space-y-3">
+              {services.map((service, index) => (
+                <li key={index}>
+                  <ArrowRight className="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transform translate-x-0 group-hover:translate-x-1 transition-all duration-300" />
+                  <span className="relative">
+                    {service.name}
+                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-green-400 group-hover:w-full transition-all duration-300"></span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-            {/* Contact & Social */}
-            <div>
-              <h4 className="text-lg font-semibold mb-6 ml-4  flex items-center">
-                <div className="w-1 h-6 bg-gradient-to-b from-purple-400 to-pink-400 rounded-full mr-3"></div>
-                Get In Touch
-              </h4>
+          {/* Contact & Social */}
+          <div className="lg:col-span-4">
+            <h4 className="text-lg font-semibold mb-6  flex items-center">
+              <div className="w-1 h-6 bg-gradient-to-b from-purple-400 to-pink-400 rounded-full mr-3"></div>
+              Get In Touch
+            </h4>
 
-              <div className="space-y-4 mb-6">
-                <div className="flex items-center space-x-3 bg-white/5 backdrop-blur-sm rounded-lg p-4 border border-white/10 hover:bg-white/10 transition-all duration-300">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
-                    <Phone className="w-5 h-5 " />
-                  </div>
-                  <div>
-                    <p className="text-gray-400 text-sm">Call Us</p>
-                    <p className=" font-medium">+91 9289933290</p>
-                  </div>
+            <div className="space-y-4 mb-6">
+              <div className="flex items-center space-x-3 bg-white/5 backdrop-blur-sm rounded-lg p-4 border border-white/10 hover:bg-white/10 transition-all duration-300">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
+                  <Phone className="w-5 h-5 " />
                 </div>
-
-                <div className="flex items-center space-x-3 bg-white/5 backdrop-blur-sm rounded-lg p-4 border border-white/10 hover:bg-white/10 transition-all duration-300">
-                  <div className="w-10 h-10 px-2 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
-                    <Mail className="w-5 h-5 " />
-                  </div>
-                  <div>
-                    <p className="text-gray-400 text-sm">Email Us</p>
-                    <p className=" font-medium">support@parcelup.in</p>
-                  </div>
+                <div>
+                  <p className="text-gray-400 text-sm">Call Us</p>
+                  <p className=" font-medium">+91 9289933290</p>
                 </div>
               </div>
 
-              {/* Enhanced Social Links */}
-              <div className="ml-4">
-                <p className=" mb-6">Follow us on social media</p>
-                <div className="flex space-x-4">
-                  {socialLinks.map((social, index) => (
-                    <a
-                      key={index}
-                      href={social.href}
-                      className={`w-12 h-12 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/20 ${social.color} hover: transition-all duration-300 transform hover:scale-110 hover:rotate-6 shadow-lg`}
-                      aria-label={social.name}
-                    >
-                      <social.icon className="w-5 h-5" />
-                    </a>
-                  ))}
+              <div className="flex items-center space-x-3 bg-white/5 backdrop-blur-sm rounded-lg p-4 border border-white/10 hover:bg-white/10 transition-all duration-300">
+                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
+                  <Mail className="w-5 h-5 " />
                 </div>
+                <div>
+                  <p className="text-gray-400 text-sm">Email Us</p>
+                  <p className=" font-medium">info@parcelup.in</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Enhanced Social Links */}
+            <div>
+              <p className=" mb-4">Follow us on social media</p>
+              <div className="flex space-x-3">
+                {socialLinks.map((social, index) => (
+                  <a
+                    key={index}
+                    href={social.href}
+                    className={`w-12 h-12 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/20 ${social.color} hover: transition-all duration-300 transform hover:scale-110 hover:rotate-6 shadow-lg`}
+                    aria-label={social.name}
+                  >
+                    <social.icon className="w-5 h-5" />
+                  </a>
+                ))}
               </div>
             </div>
           </div>
