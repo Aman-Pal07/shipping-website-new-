@@ -21,6 +21,8 @@ import {
   Clock,
   Plane,
   CheckCircle,
+  MapPin,
+  Globe2,
 } from "lucide-react";
 import {
   Collapsible,
@@ -69,6 +71,22 @@ export default function AdminSidebar({
   const userEmail = user?.email || "admin@example.com";
   const [ordersOpen, setOrdersOpen] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [addressOpen, setAddressOpen] = useState(true);
+
+  // Country options for address section
+  const countryOptions = [
+    { code: "us", name: "United States" },
+    { code: "uk", name: "United Kingdom" },
+    { code: "cn", name: "China" },
+    { code: "hk", name: "Hong Kong" },
+    { code: "my", name: "Malaysia" },
+    { code: "sg", name: "Singapore" },
+    { code: "ca", name: "Canada" },
+    { code: "ae", name: "Dubai" },
+  ].map(country => ({
+    ...country,
+    href: `/admin/address/${country.code}`
+  }));
 
   // Admin-specific navigation items
   const navigationItems: NavigationItem[] = [
@@ -115,6 +133,18 @@ export default function AdminSidebar({
       icon: CheckCircle,
     },
     {
+      name: "Address",
+      icon: MapPin,
+      isCollapsible: true,
+      isOpen: addressOpen,
+      onToggle: () => setAddressOpen(!addressOpen),
+      children: countryOptions.map((country) => ({
+        name: country.name,
+        href: country.href,
+        icon: Globe2,
+      })),
+    },
+    {
       name: "Settings",
       icon: Settings,
       isCollapsible: true,
@@ -132,6 +162,12 @@ export default function AdminSidebar({
   const isActiveLink = (href: string) => {
     if (href === "/admin" && location.pathname === "/admin") {
       return true;
+    }
+    // Special handling for address routes to match exactly or with country code
+    if (href.startsWith("/admin/address/")) {
+      return location.pathname === href || 
+             (location.pathname.startsWith("/admin/address/") && 
+              location.pathname.split('/').pop() === href.split('/').pop());
     }
     return href !== "/admin" && location.pathname.startsWith(href);
   };
@@ -204,47 +240,72 @@ export default function AdminSidebar({
                     ))}
                 </CollapsibleTrigger>
                 {!isCollapsed && item.children && (
-                  <CollapsibleContent className="ml-10 space-y-1 mt-1">
-                    {item.children.map((child) => (
-                      <Link key={child.name} to={child.href}>
-                        <div
-                          className={cn(
-                            "flex items-center justify-between px-4 py-2.5 text-sm rounded-xl hover:bg-gray-50 transition-all duration-200 group",
-                            isActiveLink(child.href)
-                              ? "text-white bg-blue-500"
-                              : "text-gray-600 hover:text-gray-900",
-                            !child.href && "pointer-events-none opacity-50"
-                          )}
-                        >
-                          <div className="flex items-center space-x-3">
-                            <div
-                              className={cn(
-                                "w-2 h-2 rounded-full transition-all duration-200",
-                                child.name === "Waiting" && "bg-amber-400",
-                                child.name === "In Transit" && "bg-blue-500",
-                                child.name === "India" && "bg-purple-500",
-                                child.name === "Dispatch" && "bg-emerald-500"
-                              )}
-                              aria-hidden="true"
-                            />
-                            <span>{child.name}</span>
+                  <CollapsibleContent className="ml-8 space-y-1 mt-2">
+                    {item.name === "Address" ? (
+                      <div className="space-y-1">
+                        {item.children.map((child) => (
+                          <Link
+                            key={child.name}
+                            to={child.href}
+                            className={cn(
+                              "flex items-center justify-between px-4 py-2.5 text-sm rounded-xl hover:bg-gray-50 transition-all duration-200 group relative",
+                              isActiveLink(child.href)
+                                ? "text-white bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/25"
+                                : "text-gray-600 hover:text-gray-900"
+                            )}
+                          >
+                            <div className="flex items-center space-x-3">
+                              <span className="text-xs font-mono font-bold w-6 h-6 flex items-center justify-center bg-white/20 rounded-full">
+                                {child.href?.split("/").pop()?.toUpperCase()}
+                              </span>
+                              <span className="font-semibold">
+                                {child.name}
+                              </span>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    ) : (
+                      item.children.map((child) => (
+                        <Link key={child.name} to={child.href}>
+                          <div
+                            className={cn(
+                              "flex items-center justify-between px-4 py-2.5 text-sm rounded-xl hover:bg-gray-50 transition-all duration-200 group relative",
+                              isActiveLink(child.href)
+                                ? "text-white bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/25"
+                                : "text-gray-600 hover:text-gray-900"
+                            )}
+                          >
+                            <div className="flex items-center space-x-3">
+                              <div
+                                className={cn(
+                                  "w-2.5 h-2.5 rounded-full transition-all duration-200 shadow-sm",
+                                  child.name === "Waiting" && "bg-amber-400",
+                                  child.name === "In Transit" && "bg-blue-500",
+                                  child.name === "India" && "bg-purple-500",
+                                  child.name === "Dispatch" && "bg-emerald-500"
+                                )}
+                              />
+                              <span className="font-semibold">
+                                {child.name}
+                              </span>
+                            </div>
+                            {child.count !== undefined && (
+                              <span
+                                className={cn(
+                                  "text-xs px-2.5 py-1 rounded-full font-bold transition-all duration-200",
+                                  isActiveLink(child.href)
+                                    ? "bg-white/20 text-white"
+                                    : "bg-gray-100 text-gray-600 group-hover:bg-gray-200"
+                                )}
+                              >
+                                {child.count}
+                              </span>
+                            )}
                           </div>
-                          {child.count !== undefined && (
-                            <span
-                              className={cn(
-                                "text-xs font-medium px-2 py-0.5 rounded-full",
-                                isActiveLink(child.href)
-                                  ? "bg-white/20"
-                                  : "bg-gray-100"
-                              )}
-                              aria-label={`${child.count} items`}
-                            >
-                              {child.count}
-                            </span>
-                          )}
-                        </div>
-                      </Link>
-                    ))}
+                        </Link>
+                      ))
+                    )}
                   </CollapsibleContent>
                 )}
               </Collapsible>

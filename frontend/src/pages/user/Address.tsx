@@ -101,11 +101,37 @@ const countryAddresses: Record<string, AddressType> = {
     pincode: "11434-6218",
     phone: "+1 (347) 445-5958",
   },
+  ca: {
+    country: "Canada",
+    firstName: "Nirbhay Aksh",
+    lastName: "Client Name",
+    addressLine1: "First Flight Couriers",
+    addressLine2: "2980 Drew road, Unit-135 Backside door",
+    city: "Mississauga",
+    state: "Ontario",
+    postcode: "L4T 0A7",
+    phone: "+1 (647) 510-8547",
+  },
+  ae: {
+    country: "UAE",
+    firstName: "Nirbhay Aksh",
+    lastName: "Client Name",
+    addressLine1: "27, Al Habtoor Warehouse, AL Quasis",
+    addressLine2: "Dubai DU United Arab Emirates",
+    city: "Dubai",
+    state: "Dubai",
+    postcode: "123-45",
+    phone: "+971 567869027",
+  },
 };
 
 type CountryCode = keyof typeof countryAddresses;
 
-const Address = () => {
+interface AddressProps {
+  isAdmin?: boolean;
+}
+
+const Address = ({ isAdmin = false }: AddressProps) => {
   const { countryCode = "us" } = useParams<{ countryCode?: string }>();
   const navigate = useNavigate();
   const [currentAddress, setCurrentAddress] = useState<AddressType | null>(
@@ -121,7 +147,8 @@ const Address = () => {
 
   // Handle country selection
   const handleCountrySelect = (code: CountryCode) => {
-    navigate(`/dashboard/address/${code}`);
+    const basePath = isAdmin ? "/admin" : "/dashboard";
+    navigate(`${basePath}/address/${code}`);
     setIsCountryDropdownOpen(false);
   };
 
@@ -131,9 +158,10 @@ const Address = () => {
       setCurrentAddress(countryAddresses[countryCode as CountryCode]);
     } else {
       // Default to US address if country code is invalid
-      navigate("/dashboard/address/us", { replace: true });
+      const basePath = isAdmin ? "/admin" : "/dashboard";
+      navigate(`${basePath}/address/us`, { replace: true });
     }
-  }, [countryCode, navigate]);
+  }, [countryCode, navigate, isAdmin]);
 
   if (!currentAddress) {
     return (
@@ -156,6 +184,8 @@ const Address = () => {
     { code: "cn", name: "China" },
     { code: "uk", name: "United Kingdom" },
     { code: "us", name: "United States" },
+    { code: "ca", name: "Canada" },
+    { code: "ae", name: "Dubai, UAE" },
   ];
 
   const getCountryFlag = (countryCode: string) => {
@@ -166,6 +196,8 @@ const Address = () => {
       cn: "🇨🇳",
       uk: "🇬🇧",
       us: "🇺🇸",
+      ca: "🇨🇦",
+      ae: "🇦🇪",
     };
     return flags[countryCode] || "🌍";
   };
@@ -213,6 +245,25 @@ const Address = () => {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
+        
+        {/* Shipment Notice */}
+        {(countryCode === 'cn' || countryCode === 'ca') && (
+          <div className="mb-6 bg-yellow-50 border-l-4 border-yellow-400 p-4">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-yellow-700">
+                  <span className="font-bold">Important:</span> IT IS NECESSARY TO UPLOAD TRACKING IDS FOR {countryCode === 'cn' ? 'CHINA' : 'CANADA'} SHIPMENTS. WITHOUT SHARING THE TRACKING ID, THE SHIPMENT WON'T ARRIVE TO INDIA
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+        
         <Card className="overflow-hidden shadow-2xl border-0 bg-white/90 backdrop-blur-sm transform transition-all duration-300 hover:shadow-3xl">
           <CardContent className="p-8">
             <div className="space-y-8">

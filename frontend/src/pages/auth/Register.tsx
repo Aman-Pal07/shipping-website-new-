@@ -15,6 +15,7 @@ export default function Register() {
     firstName: string;
     lastName: string;
     email: string;
+    phoneNumber: string;
     password: string;
     confirmPassword: string;
     documents: Array<{
@@ -28,6 +29,7 @@ export default function Register() {
     firstName: "",
     lastName: "",
     email: "",
+    phoneNumber: "",
     password: "",
     confirmPassword: "",
     documents: [
@@ -59,6 +61,12 @@ export default function Register() {
       return;
     }
 
+    // Validate phone number
+    if (!/^[+]?[0-9]{10,15}$/.test(formData.phoneNumber)) {
+      alert("Please enter a valid phone number (10-15 digits, + optional)");
+      return;
+    }
+
     // Check if exactly two documents are uploaded
     const validDocuments = formData.documents.filter((doc) => doc.file);
     if (validDocuments.length !== 2) {
@@ -79,6 +87,7 @@ export default function Register() {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
+        phoneNumber: formData.phoneNumber,
         password: formData.password,
         documents: validDocuments.map((doc) => ({
           documentType: doc.documentType,
@@ -174,6 +183,8 @@ export default function Register() {
         return !!formData.lastName.trim();
       case "email":
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
+      case "phoneNumber":
+        return /^[+]?[0-9]{10,15}$/.test(formData.phoneNumber);
       case "password":
         return formData.password.length >= 8;
       case "confirmPassword":
@@ -205,18 +216,28 @@ export default function Register() {
     formData.confirmPassword.length > 0;
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div
+      className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative"
+      style={{
+        backgroundImage:
+          "url('https://images.unsplash.com/photo-1605732562084-f528a2154616?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTZ8fHNoaXBwaW5nfGVufDB8MXwwfHx8MA%3D%3D')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+      <div className="relative z-10 max-w-md w-full space-y-8">
         <div className="text-center">
           <div className="flex justify-center mb-6">
             <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
               <LiaTelegramPlane className="h-8 w-8 text-white" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-white mb-2">
             Create Your Account
           </h1>
-          <p className="text-gray-600 mb-6">
+          <p className="text-white mb-6">
             Sign up to get started with our platform
           </p>
         </div>
@@ -292,6 +313,40 @@ export default function Register() {
                     placeholder="Last name"
                   />
                 </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <label
+                    htmlFor="phoneNumber"
+                    className="block text-sm font-semibold text-gray-700"
+                  >
+                    Phone Number <span className="text-red-500">*</span>
+                  </label>
+                  {!isFieldValid("phoneNumber") &&
+                    formData.phoneNumber.length > 0 && (
+                      <span className="text-xs text-red-500">
+                        Please enter a valid phone number
+                      </span>
+                    )}
+                </div>
+                <input
+                  id="phoneNumber"
+                  name="phoneNumber"
+                  type="tel"
+                  required
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
+                  className={`w-full px-4 py-3 border ${
+                    formData.phoneNumber.length > 0 &&
+                    !isFieldValid("phoneNumber")
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  } rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200`}
+                  placeholder="+1234567890"
+                  pattern="[+]?[0-9]{10,15}"
+                  title="Please enter a valid phone number (10-15 digits, + optional)"
+                />
               </div>
 
               <div className="space-y-4">
@@ -569,7 +624,7 @@ export default function Register() {
         </div>
 
         <div className="text-center space-y-4">
-          <p className="text-gray-600">
+          <p className="text-white">
             Already have an account?{" "}
             <Link
               to="/login"
@@ -579,7 +634,7 @@ export default function Register() {
             </Link>
           </p>
 
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-white">
             By signing up, you agree to our{" "}
             <Link to="/terms" className="text-blue-600 hover:text-blue-700">
               Terms of Service

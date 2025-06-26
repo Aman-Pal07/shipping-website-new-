@@ -90,6 +90,8 @@ export default function Sidebar({ isCollapsed = false }: SidebarProps) {
     { code: "hk", name: "Hong Kong" },
     { code: "my", name: "Malaysia" },
     { code: "sg", name: "Singapore" },
+    { code: "ca", name: "Canada" },
+    { code: "ae", name: "Dubai" },
   ];
 
   // Check screen size and update responsive states

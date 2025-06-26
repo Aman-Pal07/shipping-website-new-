@@ -38,7 +38,7 @@ import AdminTerms from "../pages/admin/settings/Terms";
 // User Pages
 import UserOverview from "../pages/user/Overview";
 import UserOrders from "../pages/user/Orders";
-import UserAddress from "../pages/user/Address";
+import Address from "../pages/user/Address";
 import UserTrack from "../pages/user/Track";
 import UserTransactions from "../pages/user/Transactions";
 import PackagesByStatusPage from "../pages/user/PackagesByStatusPage";
@@ -100,6 +100,8 @@ const AppRoutes = () => {
         <Route path="settings/security" element={<AdminSecurity />} />
         <Route path="settings/insurance" element={<AdminInsurance />} />
         <Route path="settings/terms" element={<AdminTerms />} />
+        <Route path="address" element={<Address isAdmin={true} />} />
+        <Route path="address/:countryCode" element={<Address isAdmin={true} />} />
       </Route>
 
       <Route element={<MainLayout />}>
@@ -118,8 +120,8 @@ const AppRoutes = () => {
         >
           <Route index element={<UserOverview />} />
           <Route path="orders" element={<UserOrders />} />
-          <Route path="address" element={<UserAddress />} />
-          <Route path="address/:countryCode" element={<UserAddress />} />
+          <Route path="address" element={<Address />} />
+          <Route path="address/:countryCode" element={<Address />} />
           <Route path="track" element={<UserTrack />} />
           <Route path="transactions" element={<UserTransactions />} />
           <Route path="packages" element={<PackagesByStatusPage />} />

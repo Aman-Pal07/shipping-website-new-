@@ -66,8 +66,18 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div
+      className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative"
+      style={{
+        backgroundImage:
+          "url('https://images.unsplash.com/photo-1587293852726-70cdb56c2866?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8d2FyZWhvdXNlfGVufDB8fDB8fHww')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+      <div className="relative z-10 max-w-md w-full space-y-8">
         {/* Header Section */}
         <div className="text-center">
           <div className="flex justify-center mb-6">
@@ -75,10 +85,10 @@ export default function Login() {
               <LiaTelegramPlane className="h-8 w-8 text-white" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-gray-200 mb-2">
             Welcome Back
           </h1>
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-200 mb-6">
             Sign in to continue to your account
           </p>
         </div>
@@ -192,7 +202,7 @@ export default function Login() {
 
         {/* Footer */}
         <div className="text-center space-y-4">
-          <p className="text-gray-600">
+          <p className="text-gray-300">
             Don't have an account?{" "}
             <Link
               to="/register"
@@ -202,7 +212,7 @@ export default function Login() {
             </Link>
           </p>
 
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-300">
             By signing in, you agree to our{" "}
             <Link to="/terms" className="text-blue-600 hover:text-blue-700">
               Terms of Service
