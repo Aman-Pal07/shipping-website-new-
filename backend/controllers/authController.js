@@ -39,7 +39,7 @@ const registerUser = asyncHandler(async (req, res) => {
     console.log("Request body:", req.body);
     console.log("Request file:", req.file);
 
-    const { firstName, lastName, email, password, documentTypes } = req.body;
+    const { firstName, lastName, email, password, documentTypes, phoneNumber } = req.body;
 
     // Handle file uploads
     const files = req.files?.documents || [];
@@ -268,6 +268,7 @@ const registerUser = asyncHandler(async (req, res) => {
         lastName,
         email,
         password, // The password will be hashed by the pre-save hook in the User model
+        phoneNumber, // Add phone number to user creation
         documents: uploadedDocuments,
         role: "user",
         isVerified: false,

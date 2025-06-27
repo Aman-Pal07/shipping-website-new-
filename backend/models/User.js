@@ -98,7 +98,15 @@ const userSchema = new mongoose.Schema(
     },
     phoneNumber: {
       type: String,
-      trim: true
+      required: [true, 'Phone number is required'],
+      trim: true,
+      validate: {
+        validator: function(v) {
+          // Basic validation for phone number (10 digits, optional + at start)
+          return /^[+]?[0-9]{10,15}$/.test(v);
+        },
+        message: props => `${props.value} is not a valid phone number!`
+      }
     },
     emailUpdate: {
       newEmail: {

@@ -13,7 +13,7 @@ export default function Header({ title, subtitle, onMenuClick }: HeaderProps) {
     <header className="relative bg-white border-b border-slate-100 overflow-hidden">
       {/* Modern gradient background accent */}
 
-      <div className="relative px-2 py-[30px]">
+      <div className="relative px-2 py-[26px]">
         <div className="flex items-center justify-between">
           {/* Left section */}
           <div className="flex items-center space-x-6">

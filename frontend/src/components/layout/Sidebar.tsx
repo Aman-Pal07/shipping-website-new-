@@ -270,11 +270,13 @@ export default function Sidebar({ isCollapsed = false }: SidebarProps) {
           {(!isCollapsed || isMobileView) && (
             <div className="w-full">
               <div className="flex items-center">
-                <img
-                  src="/e2.png"
-                  alt="PARCELUP Logo"
-                  className="h-10 w-auto -ml-2"
-                />
+                <Link to="/">
+                  <img
+                    src="/e2.png"
+                    alt="PARCELUP Logo"
+                    className="h-10 w-auto -ml-2"
+                  />
+                </Link>
               </div>
             </div>
           )}

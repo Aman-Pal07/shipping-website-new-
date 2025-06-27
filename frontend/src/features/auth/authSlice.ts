@@ -51,11 +51,10 @@ export const registerUser = createAsyncThunk<AuthResponse, RegisterData>(
     try {
       // Convert RegisterData to FormData
       const formData = new FormData();
-
-      // Add user data
       formData.append("firstName", userData.firstName.trim());
       formData.append("lastName", userData.lastName.trim());
       formData.append("email", userData.email.trim());
+      formData.append("phoneNumber", userData.phoneNumber.trim());
       formData.append("password", userData.password);
 
       // Add document types as JSON
@@ -71,14 +70,13 @@ export const registerUser = createAsyncThunk<AuthResponse, RegisterData>(
         }
       });
 
-      console.log("Sending registration data:", {
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        email: userData.email,
-        documentCount: userData.documents.length,
-        documentTypes: userData.documents.map((d) => d.documentType),
-      });
+      console.log("Sending registration data:");
+      // Log form data entries
+      for (let pair of (formData as any).entries()) {
+        console.log(pair[0] + ': ', pair[1]);
+      }
 
+      // Make the API call
       const response = await authAPI.register(formData);
 
       // Only store token if no verification is required

@@ -11,6 +11,7 @@ export const packageAPI = {
   // Get all packages (admin)
   getAllPackages: async (): Promise<PackageWithCustomer[]> => {
     const response = await api.get("/packages");
+    console.log('Packages API response:', JSON.stringify(response.data, null, 2));
     return response.data;
   },
 

@@ -33,7 +33,17 @@ const getAllPackages = asyncHandler(async (req, res) => {
     .select("+adminTrackingId")
     .lean();
 
-  res.status(200).json(packages);
+  // Transform the packages to include customer information in the expected format
+  const transformedPackages = packages.map(pkg => ({
+    ...pkg,
+    customer: pkg.userId ? {
+      name: pkg.userId.name || 'Unknown User',
+      email: pkg.userId.email,
+      initials: (pkg.userId.name || 'UU').split(' ').map(n => n[0]).join('').toUpperCase()
+    } : null
+  }));
+
+  res.status(200).json(transformedPackages);
 });
 
 /**

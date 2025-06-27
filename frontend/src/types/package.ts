@@ -10,7 +10,11 @@ export interface Package {
   _id?: string; // MongoDB ObjectId from backend
   trackingId: string;
   adminTrackingId?: string; // Admin tracking ID
-  userId: number;
+  userId: number | {
+    _id: string;
+    email: string;
+    name?: string;
+  };
   weight: string;
   weightUnit?: string;
   volumetricWeight?: number;

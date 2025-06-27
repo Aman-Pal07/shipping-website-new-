@@ -7,6 +7,7 @@ import {
   Mail,
   HelpCircle,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -172,7 +173,9 @@ const Navigation = () => {
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <div className="group cursor-pointer">
-            <img src="/e2.png" alt="PARCELUP Logo" className="h-16 w-25" />
+            <Link to="/">
+              <img src="/e2.png" alt="PARCELUP Logo" className="h-16 w-25" />
+            </Link>
           </div>
 
           {/* Desktop Navigation */}

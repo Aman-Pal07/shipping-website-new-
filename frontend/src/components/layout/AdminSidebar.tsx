@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "../../lib/utils";
 import { useAuth } from "../../hooks/useAuth";
@@ -23,6 +23,8 @@ import {
   CheckCircle,
   MapPin,
   Globe2,
+  Menu,
+  X,
 } from "lucide-react";
 import {
   Collapsible,
@@ -63,12 +65,64 @@ interface AdminSidebarProps {
 
 export default function AdminSidebar({
   isCollapsed = false,
+  onToggle,
 }: AdminSidebarProps) {
+  const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Check screen size and update responsive states
+  useEffect(() => {
+    const checkScreenSize = () => {
+      const width = window.innerWidth;
+      setIsMobile(width < 768);
+      setIsTablet(width >= 768 && width < 1024);
+    };
+
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
+
+  // Close mobile menu when route changes
   const location = useLocation();
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen && isMobile) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isMobileMenuOpen, isMobile]);
+
+  // Mobile menu button component
+  const MobileMenuButton = () => (
+    <Button
+      variant="ghost"
+      size="icon"
+      className="md:hidden fixed top-4 left-4 z-50 bg-white shadow-md rounded-xl p-2"
+      onClick={() => {
+        setIsMobileMenuOpen(!isMobileMenuOpen);
+        onToggle?.();
+      }}
+    >
+      {isMobileMenuOpen ? (
+        <X className="w-5 h-5" />
+      ) : (
+        <Menu className="w-5 h-5" />
+      )}
+    </Button>
+  );
   // Get user data from auth with fallback
   const { user, logout } = useAuth();
   // Safely access user properties with type assertion
-  const userEmail = user?.email || "admin@example.com";
   const [ordersOpen, setOrdersOpen] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [addressOpen, setAddressOpen] = useState(true);
@@ -83,9 +137,9 @@ export default function AdminSidebar({
     { code: "sg", name: "Singapore" },
     { code: "ca", name: "Canada" },
     { code: "ae", name: "Dubai" },
-  ].map(country => ({
+  ].map((country) => ({
     ...country,
-    href: `/admin/address/${country.code}`
+    href: `/admin/address/${country.code}`,
   }));
 
   // Admin-specific navigation items
@@ -165,33 +219,40 @@ export default function AdminSidebar({
     }
     // Special handling for address routes to match exactly or with country code
     if (href.startsWith("/admin/address/")) {
-      return location.pathname === href || 
-             (location.pathname.startsWith("/admin/address/") && 
-              location.pathname.split('/').pop() === href.split('/').pop());
+      return (
+        location.pathname === href ||
+        (location.pathname.startsWith("/admin/address/") &&
+          location.pathname.split("/").pop() === href.split("/").pop())
+      );
     }
     return href !== "/admin" && location.pathname.startsWith(href);
   };
 
-  return (
-    <div
-      className={cn(
-        "h-screen bg-white border-r border-gray-100 flex flex-col transition-all duration-300 ease-in-out shadow-sm",
-        isCollapsed ? "w-16" : "w-72"
-      )}
-    >
+  // Sidebar Content Component
+  const SidebarContent = ({
+    isMobileView = false,
+  }: {
+    isMobileView?: boolean;
+  }) => (
+    <>
       {/* Logo/Brand */}
       <div
-        className={cn("border-b border-gray-50", isCollapsed ? "p-4" : "p-6")}
+        className={cn(
+          "border-b border-gray-100",
+          isMobileView ? "pl-2 pr-4 py-4" : "pl-4 pr-6 py-6"
+        )}
       >
         <div className="flex items-center">
-          {!isCollapsed && (
+          {(!isCollapsed || isMobileView) && (
             <div className="w-full">
               <div className="flex items-center">
-                <img
-                  src="/e2.png"
-                  alt="PARCELUP Logo"
-                  className="h-10 w-auto"
-                />
+                <Link to="/">
+                  <img
+                    src="/e2.png"
+                    alt="PARCELUP Logo"
+                    className="h-10 w-auto -ml-2"
+                  />
+                </Link>
               </div>
             </div>
           )}
@@ -199,7 +260,12 @@ export default function AdminSidebar({
       </div>
 
       {/* Navigation Menu */}
-      <nav className="flex-1 p-4 space-y-2 overflow-hidden hover:overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
+      <nav
+        className={cn(
+          "flex-1 space-y-2 overflow-hidden hover:overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent",
+          isMobileView ? "p-3" : "p-4"
+        )}
+      >
         <style>{`
           .scrollbar-thin::-webkit-scrollbar {
             width: 4px;
@@ -222,148 +288,142 @@ export default function AdminSidebar({
               <Collapsible open={item.isOpen} onOpenChange={item.onToggle}>
                 <CollapsibleTrigger
                   className={cn(
-                    "flex items-center justify-between w-full px-4 py-3 rounded-2xl text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all duration-200 group",
-                    isCollapsed && "justify-center"
+                    "flex items-center justify-between w-full px-4 py-3 rounded-2xl transition-all duration-200 group",
+                    isCollapsed && !isMobileView && "justify-center"
                   )}
                 >
                   <div className="flex items-center space-x-3">
-                    <item.icon className="w-5 h-5 flex-shrink-0 group-hover:scale-105 transition-transform duration-200" />
-                    {!isCollapsed && (
-                      <span className="font-medium text-sm">{item.name}</span>
+                    <item.icon className="w-5 h-5 flex-shrink-0" />
+                    {(!isCollapsed || isMobileView) && (
+                      <span className="font-semibold text-sm">{item.name}</span>
                     )}
                   </div>
-                  {!isCollapsed &&
+                  {(!isCollapsed || isMobileView) &&
                     (item.isOpen ? (
-                      <ChevronDown className="w-4 h-4 text-gray-400 transition-transform duration-200" />
+                      <ChevronDown className="w-4 h-4 transition-transform duration-200 text-gray-400" />
                     ) : (
-                      <ChevronRight className="w-4 h-4 text-gray-400 transition-transform duration-200" />
+                      <ChevronRight className="w-4 h-4 transition-transform duration-200 text-gray-400" />
                     ))}
                 </CollapsibleTrigger>
-                {!isCollapsed && item.children && (
+                {(!isCollapsed || isMobileView) && (
                   <CollapsibleContent className="ml-8 space-y-1 mt-2">
-                    {item.name === "Address" ? (
-                      <div className="space-y-1">
-                        {item.children.map((child) => (
-                          <Link
-                            key={child.name}
-                            to={child.href}
-                            className={cn(
-                              "flex items-center justify-between px-4 py-2.5 text-sm rounded-xl hover:bg-gray-50 transition-all duration-200 group relative",
-                              isActiveLink(child.href)
-                                ? "text-white bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/25"
-                                : "text-gray-600 hover:text-gray-900"
-                            )}
-                          >
-                            <div className="flex items-center space-x-3">
-                              <span className="text-xs font-mono font-bold w-6 h-6 flex items-center justify-center bg-white/20 rounded-full">
-                                {child.href?.split("/").pop()?.toUpperCase()}
-                              </span>
-                              <span className="font-semibold">
-                                {child.name}
-                              </span>
-                            </div>
-                          </Link>
-                        ))}
-                      </div>
-                    ) : (
-                      item.children.map((child) => (
-                        <Link key={child.name} to={child.href}>
-                          <div
-                            className={cn(
-                              "flex items-center justify-between px-4 py-2.5 text-sm rounded-xl hover:bg-gray-50 transition-all duration-200 group relative",
-                              isActiveLink(child.href)
-                                ? "text-white bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/25"
-                                : "text-gray-600 hover:text-gray-900"
-                            )}
-                          >
-                            <div className="flex items-center space-x-3">
-                              <div
-                                className={cn(
-                                  "w-2.5 h-2.5 rounded-full transition-all duration-200 shadow-sm",
-                                  child.name === "Waiting" && "bg-amber-400",
-                                  child.name === "In Transit" && "bg-blue-500",
-                                  child.name === "India" && "bg-purple-500",
-                                  child.name === "Dispatch" && "bg-emerald-500"
-                                )}
-                              />
-                              <span className="font-semibold">
-                                {child.name}
-                              </span>
-                            </div>
-                            {child.count !== undefined && (
-                              <span
-                                className={cn(
-                                  "text-xs px-2.5 py-1 rounded-full font-bold transition-all duration-200",
-                                  isActiveLink(child.href)
-                                    ? "bg-white/20 text-white"
-                                    : "bg-gray-100 text-gray-600 group-hover:bg-gray-200"
-                                )}
-                              >
-                                {child.count}
-                              </span>
-                            )}
-                          </div>
-                        </Link>
-                      ))
-                    )}
+                    {item.children?.map((child) => (
+                      <Link
+                        key={child.name}
+                        to={child.href}
+                        className={cn(
+                          "flex items-center px-4 py-2.5 text-sm rounded-xl transition-all duration-200 group",
+                          isActiveLink(child.href)
+                            ? "text-blue-600 font-medium"
+                            : "text-gray-600 hover:text-gray-900"
+                        )}
+                      >
+                        <div className="flex items-center space-x-3">
+                          {child.name === "Address" ? (
+                            <span className="text-xs font-mono font-bold w-6 h-6 flex items-center justify-center rounded-full border border-gray-200">
+                              {child.href?.split("/").pop()?.toUpperCase()}
+                            </span>
+                          ) : (
+                            <child.icon className="w-4 h-4" />
+                          )}
+                          <span>{child.name}</span>
+                        </div>
+                      </Link>
+                    ))}
                   </CollapsibleContent>
                 )}
               </Collapsible>
             ) : (
-              <Link to={item.href}>
-                <div
-                  className={cn(
-                    "flex items-center justify-between px-4 py-3 rounded-2xl text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all duration-200 group",
-                    isActiveLink(item.href) && "text-blue-600 bg-blue-50",
-                    isCollapsed && "justify-center"
-                  )}
-                >
-                  <div className="flex items-center space-x-3">
-                    <item.icon className="w-5 h-5 flex-shrink-0 group-hover:scale-105 transition-transform duration-200" />
-                    {!isCollapsed && (
-                      <span className="font-medium text-sm">{item.name}</span>
-                    )}
-                  </div>
-                </div>
+              <Link
+                to={item.href || "#"}
+                className={cn(
+                  "flex items-center space-x-3 px-4 py-3 rounded-2xl transition-all duration-200 group",
+                  isActiveLink(item.href)
+                    ? "text-blue-600 font-medium"
+                    : "text-gray-600 hover:text-gray-900"
+                )}
+              >
+                <item.icon className="w-5 h-5 flex-shrink-0" />
+                {(!isCollapsed || isMobileView) && (
+                  <span className="font-semibold text-sm">{item.name}</span>
+                )}
               </Link>
             )}
           </div>
         ))}
       </nav>
 
-      {/* User Profile */}
-      <div className="p-4 border-t border-gray-100">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Avatar className="w-10 h-10 border-2 border-white shadow">
-              <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-medium">
-                {user?.firstName && user?.lastName
-                  ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase()
-                  : user?.email[0]?.toUpperCase() || "U"}
+      {/* User Profile Section */}
+      <div className="border-t border-gray-100 p-4">
+        <div className="flex items-center space-x-3 group cursor-pointer p-2 rounded-xl hover:bg-gray-50 transition-colors duration-200">
+          <div className="relative">
+            <Avatar className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-700">
+              <AvatarFallback className="bg-transparent text-white font-bold">
+                {user?.email ? user.email[0].toUpperCase() : ""}
               </AvatarFallback>
             </Avatar>
-            {!isCollapsed && (
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">
-                  {user?.firstName ?? "Anonymous"}
-                </p>
-                <p className="text-xs text-gray-500 truncate">{userEmail}</p>
-              </div>
-            )}
+            <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow-sm"></div>
           </div>
-          {!isCollapsed && (
+          {(!isCollapsed || isMobileView) && (
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-gray-900 truncate">
+                {user?.firstName + " " + user?.lastName || "Admin"}
+              </p>
+              <p className="text-xs text-gray-500 truncate font-medium">
+                {user?.email || "admin@example.com"}
+              </p>
+            </div>
+          )}
+          {(!isCollapsed || isMobileView) && (
             <Button
               variant="ghost"
-              size="icon"
-              className="w-8 h-8 rounded-full"
+              size="sm"
               onClick={logout}
-              title="Sign out"
+              className="p-2.5 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all duration-200 group-hover:scale-105"
             >
               <LogOut className="w-4 h-4" />
             </Button>
           )}
         </div>
       </div>
-    </div>
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile Menu Button */}
+      <MobileMenuButton />
+
+      {/* Mobile Overlay */}
+      {isMobileMenuOpen && isMobile && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Desktop Sidebar */}
+      <div
+        className={cn(
+          "hidden md:flex h-screen bg-white border-r border-gray-100 flex-col transition-all duration-300 ease-in-out shadow-sm",
+          // Desktop breakpoint
+          !isMobile && !isTablet && (isCollapsed ? "w-16" : "w-72"),
+          // Tablet breakpoint
+          isTablet && (isCollapsed ? "w-16" : "w-64")
+        )}
+      >
+        <SidebarContent />
+      </div>
+
+      {/* Mobile Sidebar */}
+      <div
+        className={cn(
+          "md:hidden fixed inset-y-0 left-0 z-50 w-80 bg-white border-r border-gray-100 flex flex-col shadow-xl transform transition-transform duration-300 ease-in-out",
+          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        <SidebarContent isMobileView />
+      </div>
+    </>
   );
 }

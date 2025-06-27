@@ -78,6 +78,7 @@ const AppRoutes = () => {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:resetToken" element={<ResetPassword />} />
       <Route path="/" element={<Home />} />
+      <Route path="/about" element={<About />} />
 
       {/* Admin Routes - Outside MainLayout to have separate admin layout */}
       <Route
@@ -106,7 +107,6 @@ const AppRoutes = () => {
 
       <Route element={<MainLayout />}>
         {/* Public Routes */}
-        <Route path="/about" element={<About />} />
         <Route path="/terms" element={<Terms />} />
 
         {/* User Routes */}

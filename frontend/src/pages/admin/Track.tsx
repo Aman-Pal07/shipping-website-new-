@@ -446,7 +446,7 @@ export default function Track() {
                         {pkg.adminTrackingId || pkg.trackingId || "N/A"}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {pkg.customer?.name || "N/A"}
+                        {typeof pkg.userId === 'object' ? pkg.userId.email : 'N/A'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         <span

@@ -20,6 +20,7 @@ const paymentRoutes = require("./routes/paymentRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const transactionRoutes = require("./routes/transactionRoutes");
 const completedTransactionRoutes = require("./routes/completedTransactionRoutes");
+const reviewRoutes = require("./routes/reviewRoutes");
 
 // Trust first proxy (important when behind services like Render)
 const app = express();
@@ -151,11 +152,15 @@ const PORT = process.env.PORT || 3000;
 
 // Initialize middleware
 // First, add raw body parsing for webhooks
-app.use('/api/payments/webhook', express.raw({ type: 'application/json' }), (req, res, next) => {
-  // Store the raw body for webhook verification
-  req.rawBody = req.body;
-  next();
-});
+app.use(
+  "/api/payments/webhook",
+  express.raw({ type: "application/json" }),
+  (req, res, next) => {
+    // Store the raw body for webhook verification
+    req.rawBody = req.body;
+    next();
+  }
+);
 
 // Then parse JSON and URL-encoded bodies for other routes
 app.use(express.json()); // Parse JSON bodies
@@ -186,6 +191,7 @@ app.use("/api/payments", paymentRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/transactions", transactionRoutes);
 app.use("/api", completedTransactionRoutes);
+app.use("/api/reviews", reviewRoutes);
 
 // Health check endpoint
 app.get("/health", (req, res) => {

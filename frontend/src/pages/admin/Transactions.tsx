@@ -146,8 +146,8 @@ const EditDimensions: React.FC<EditDimensionsProps> = ({
   };
 
   return (
-    <div className="space-y-2">
-      <div className="flex gap-2">
+    <div className="space-y-3">
+      <div className="flex flex-wrap gap-2 sm:gap-3">
         {["width", "height", "length"].map((field) => (
           <input
             key={field}
@@ -156,7 +156,7 @@ const EditDimensions: React.FC<EditDimensionsProps> = ({
             value={editDimensions[field as keyof typeof editDimensions]}
             onChange={handleChange}
             placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
-            className="w-20 px-2 py-1 border rounded text-sm"
+            className="w-16 sm:w-20 px-2 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             min="0"
             step="0.01"
           />
@@ -165,7 +165,7 @@ const EditDimensions: React.FC<EditDimensionsProps> = ({
           name="unit"
           value={editDimensions.unit}
           onChange={handleChange}
-          className="px-2 py-1 border rounded text-sm"
+          className="px-2 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
           {["cm", "in", "m", "ft"].map((unit) => (
             <option key={unit} value={unit}>
@@ -177,13 +177,13 @@ const EditDimensions: React.FC<EditDimensionsProps> = ({
       <div className="flex gap-2">
         <button
           onClick={handleSubmit}
-          className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="px-3 py-1.5 text-xs font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
         >
           Save
         </button>
         <button
           onClick={onCancel}
-          className="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+          className="px-3 py-1.5 text-xs font-medium bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
         >
           Cancel
         </button>
@@ -490,28 +490,32 @@ export default function Transactions() {
   );
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-7xl mx-auto p-6 space-y-8">
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-[1920px] mx-auto p-4 sm:p-6 lg:p-8 space-y-6 lg:space-y-8">
         {/* Header */}
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-          <div className="space-y-2">
-            <h1 className="text-3xl font-bold text-gray-900">Transactions</h1>
-            <p className="text-gray-600">Manage transaction activities</p>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6">
+          <div className="space-y-1 sm:space-y-2">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">
+              Transactions
+            </h1>
+            <p className="text-sm sm:text-base text-gray-600">
+              Manage transaction activities
+            </p>
           </div>
-          <button className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700">
-            <Download className="w-5 h-5" />
+          <button className="flex items-center gap-2 bg-blue-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl hover:bg-blue-700 transition-colors text-sm sm:text-base font-medium shadow-lg">
+            <Download className="w-4 h-4 sm:w-5 sm:h-5" />
             Export
           </button>
         </div>
 
         {/* Error */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-800 p-4 rounded-xl">
-            <div className="flex justify-between">
-              <p>{error}</p>
+          <div className="bg-red-50 border border-red-200 text-red-800 p-4 sm:p-6 rounded-xl">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+              <p className="text-sm sm:text-base">{error}</p>
               <button
                 onClick={() => dispatch(fetchAllTransactions())}
-                className="bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700"
+                className="bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
               >
                 Retry
               </button>
@@ -520,23 +524,26 @@ export default function Transactions() {
         )}
 
         {/* Filters */}
-        <div className="bg-white border rounded-2xl shadow-lg">
-          <div className="p-6 bg-gray-50 border-b">
-            <div className="flex flex-col xl:flex-row gap-6">
-              <div className="flex-1">
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-lg">
+          <div className="p-4 sm:p-6 bg-gray-50 border-b border-gray-200 rounded-t-2xl">
+            <div className="flex flex-col space-y-4 lg:space-y-6">
+              {/* Search Bar */}
+              <div className="w-full">
                 <div className="relative">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                   <input
                     type="text"
-                    className="w-full pl-12 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
+                    className="w-full pl-10 sm:pl-12 pr-4 py-2.5 sm:py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
                     placeholder="Search transactions..."
                     onChange={(e) => debouncedSearch(e.target.value)}
                   />
                 </div>
               </div>
-              <div className="flex flex-wrap gap-4">
+
+              {/* Filter Controls */}
+              <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
                 <select
-                  className="pl-4 pr-10 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 min-w-[140px]"
+                  className="flex-1 sm:flex-initial min-w-[140px] px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
                   value={filterType}
                   onChange={(e) =>
                     setFilterType(e.target.value as typeof filterType)
@@ -546,8 +553,9 @@ export default function Transactions() {
                   <option value="payment">Payment</option>
                   <option value="refund">Refund</option>
                 </select>
+
                 <select
-                  className="pl-4 pr-10 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 min-w-[140px]"
+                  className="flex-1 sm:flex-initial min-w-[140px] px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
                   value={filterStatus}
                   onChange={(e) =>
                     setFilterStatus(e.target.value as typeof filterStatus)
@@ -558,8 +566,9 @@ export default function Transactions() {
                   <option value="completed">Completed</option>
                   <option value="failed">Failed</option>
                 </select>
+
                 <select
-                  className="pl-4 pr-10 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 min-w-[180px]"
+                  className="flex-1 sm:flex-initial min-w-[180px] px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
                   value={filterPackageStatus}
                   onChange={(e) =>
                     setFilterPackageStatus(
@@ -572,85 +581,56 @@ export default function Transactions() {
                     In Transit → India
                   </option>
                 </select>
-                <label className="flex items-center">
+
+                <label className="flex items-center gap-3 py-1">
                   <input
                     type="checkbox"
                     className="sr-only peer"
                     checked={showAllTransactions}
                     onChange={(e) => setShowAllTransactions(e.target.checked)}
                   />
-                  <div className="relative w-12 h-6 bg-gray-200 rounded-full peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-                  <span className="ml-3 text-sm text-gray-700">Show All</span>
+                  <div className="relative w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                  <span className="text-sm sm:text-base text-gray-700">
+                    Show All
+                  </span>
                 </label>
               </div>
             </div>
           </div>
 
-          {/* Table */}
+          {/* Table Container */}
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-gray-50">
-                  {[
-                    "Order ID",
-                    "Customer",
-                    "Amount",
-                    "Status",
-                    "Date",
-                    "Dimensions",
-                    "Volumetric Weight",
-                    "Weight",
-                    "Actions",
-                  ].map((header) => (
-                    <th
-                      key={header}
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
-                    >
-                      {header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {isLoading ? (
-                  <tr>
-                    <td colSpan={9} className="py-16 text-center">
-                      <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mx-auto"></div>
-                      <span className="text-gray-600">Loading...</span>
-                    </td>
-                  </tr>
-                ) : filteredTransactions.length ? (
-                  filteredTransactions.map((txn, index) => (
-                    <tr
+            {/* Mobile Cards View */}
+            <div className="block lg:hidden">
+              {isLoading ? (
+                <div className="py-16 text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-4 border-blue-200 border-t-blue-600 mx-auto mb-4"></div>
+                  <span className="text-gray-600 text-sm sm:text-base">
+                    Loading...
+                  </span>
+                </div>
+              ) : filteredTransactions.length ? (
+                <div className="p-4 space-y-4">
+                  {filteredTransactions.map((txn, index) => (
+                    <div
                       key={txn.id}
-                      className={`border-b hover:bg-blue-50 ${
+                      className={`p-4 border border-gray-200 rounded-xl ${
                         index % 2 ? "bg-gray-50" : "bg-white"
                       }`}
                     >
-                      <td className="py-4 px-6">
-                        <span className="font-mono text-sm bg-gray-100 px-2 py-1 rounded-lg">
-                          {txn.orderId || "—"}
-                        </span>
-                      </td>
-                      <td className="py-4 px-6">{txn.customer || "—"}</td>
-                      <td className="py-4 px-6">
-                        {editingId === txn.id ? (
-                          <div className="flex gap-2">
-                            <input
-                              type="number"
-                              value={editAmount}
-                              onChange={(e) => setEditAmount(e.target.value)}
-                              className="w-24 px-3 py-1 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
-                              min="0"
-                              step="0.01"
-                              autoFocus
-                            />
-                            <span className="text-xs text-gray-500">₹</span>
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <div className="font-mono text-sm bg-gray-100 px-2 py-1 rounded-lg inline-block mb-2">
+                              {txn.orderId || "—"}
+                            </div>
+                            <p className="font-medium text-gray-900">
+                              {txn.customer}
+                            </p>
                           </div>
-                        ) : (
-                          <div className="flex gap-2">
-                            <span
-                              className={`font-semibold ${
+                          <div className="text-right">
+                            <div
+                              className={`font-semibold text-lg px-[-5px] ${
                                 txn.type === "refund"
                                   ? "text-red-600"
                                   : txn.amount === 0
@@ -662,142 +642,460 @@ export default function Transactions() {
                               {txn.amount === 0
                                 ? "₹0.00"
                                 : formatCurrency(txn.amount)}
+                            </div>
+                            <span
+                              className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                                txn.status === "completed"
+                                  ? "bg-green-100 text-green-800"
+                                  : txn.status === "pending"
+                                  ? "bg-yellow-100 text-yellow-800"
+                                  : "bg-red-100 text-red-800"
+                              }`}
+                            >
+                              {txn.status.charAt(0).toUpperCase() +
+                                txn.status.slice(1)}
                             </span>
-                            <button
-                              onClick={() => handleEditClick(txn)}
-                              className="p-1 rounded-full hover:bg-blue-100 text-blue-600"
-                              title="Edit amount"
-                            >
-                              <Edit className="h-3 w-3" />
-                            </button>
                           </div>
-                        )}
-                      </td>
-                      <td className="py-4 px-6">
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                            txn.status === "completed"
-                              ? "bg-green-100 text-green-800"
-                              : txn.status === "pending"
-                              ? "bg-yellow-100 text-yellow-800"
-                              : "bg-red-100 text-red-800"
-                          }`}
-                        >
-                          {txn.status.charAt(0).toUpperCase() +
-                            txn.status.slice(1)}
-                        </span>
-                      </td>
-                      <td className="py-4 px-6 text-gray-600 text-sm">
-                        {formatDateTime(txn.date)}
-                      </td>
-                      <td className="py-4 px-6">
-                        {editingDimensionsId === txn.id ? (
-                          <EditDimensions
-                            transactionId={txn.id}
-                            dimensions={txn.dimensions}
-                            onSave={handleUpdateDimensions}
-                            onCancel={() => setEditingDimensionsId(null)}
-                          />
-                        ) : txn.dimensions ? (
-                          <div className="flex gap-1">
-                            <span>
-                              {txn.dimensions.width}×{txn.dimensions.height}×
-                              {txn.dimensions.length} {txn.dimensions.unit}
+                        </div>
+
+                        <div className="text-sm text-gray-600">
+                          {formatDateTime(txn.date)}
+                        </div>
+
+                        {/* Dimensions */}
+                        <div className="border-t pt-3">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm font-medium text-gray-700">
+                              Dimensions:
                             </span>
-                            <button
-                              onClick={() => setEditingDimensionsId(txn.id)}
-                              className="text-gray-400 hover:text-blue-500"
-                            >
-                              <Edit className="h-3 w-3" />
-                            </button>
-                          </div>
-                        ) : (
-                          <button
-                            onClick={() => setEditingDimensionsId(txn.id)}
-                            className="text-xs text-blue-500 hover:text-blue-700"
-                          >
-                            Add
-                          </button>
-                        )}
-                      </td>
-                      <td className="py-4 px-6">
-                        {editingVolumetricWeightId === txn.id ? (
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="number"
-                              value={editVolumetricWeight.value}
-                              onChange={(e) =>
-                                setEditVolumetricWeight((prev) => ({
-                                  ...prev,
-                                  value: e.target.value,
-                                }))
-                              }
-                              className="w-20 px-2 py-1 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500"
-                              min="0"
-                              step="0.01"
-                              autoFocus
-                            />
-                            <select
-                              value={editVolumetricWeight.unit}
-                              onChange={(e) => {
-                                setEditVolumetricWeight((prev) => ({
-                                  ...prev,
-                                  unit: e.target.value as WeightUnit,
-                                }));
-                              }}
-                              className="text-sm border rounded-lg focus:ring-2 focus:ring-blue-500"
-                            >
-                              <option value="kg">kg</option>
-                              <option value="g">g</option>
-                              <option value="lb">lb</option>
-                              <option value="oz">oz</option>
-                            </select>
-                            <div className="flex gap-1">
+                            {editingDimensionsId === txn.id ? (
+                              <EditDimensions
+                                transactionId={txn.id}
+                                dimensions={txn.dimensions}
+                                onSave={handleUpdateDimensions}
+                                onCancel={() => setEditingDimensionsId(null)}
+                              />
+                            ) : txn.dimensions ? (
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm">
+                                  {txn.dimensions.width}×{txn.dimensions.height}
+                                  ×{txn.dimensions.length} {txn.dimensions.unit}
+                                </span>
+                                <button
+                                  onClick={() => setEditingDimensionsId(txn.id)}
+                                  className="text-gray-400 hover:text-blue-500 p-1"
+                                >
+                                  <Edit className="h-3 w-3" />
+                                </button>
+                              </div>
+                            ) : (
                               <button
-                                onClick={() =>
-                                  handleSaveVolumetricWeight(txn.id)
-                                }
-                                className="p-1 text-green-600 hover:bg-green-100 rounded-full"
-                                title="Save"
+                                onClick={() => setEditingDimensionsId(txn.id)}
+                                className="text-sm text-blue-500 hover:text-blue-700"
+                              >
+                                Add
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Volumetric Weight */}
+                        <div className="border-t pt-3">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm font-medium text-gray-700">
+                              Vol. Weight:
+                            </span>
+                            {editingVolumetricWeightId === txn.id ? (
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="number"
+                                  value={editVolumetricWeight.value}
+                                  onChange={(e) =>
+                                    setEditVolumetricWeight((prev) => ({
+                                      ...prev,
+                                      value: e.target.value,
+                                    }))
+                                  }
+                                  className="w-20 px-2 py-1 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                  min="0"
+                                  step="0.01"
+                                />
+                                <select
+                                  value={editVolumetricWeight.unit}
+                                  onChange={(e) => {
+                                    setEditVolumetricWeight((prev) => ({
+                                      ...prev,
+                                      unit: e.target.value as WeightUnit,
+                                    }));
+                                  }}
+                                  className="text-sm border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                >
+                                  <option value="kg">kg</option>
+                                  <option value="g">g</option>
+                                  <option value="lb">lb</option>
+                                  <option value="oz">oz</option>
+                                </select>
+                                <div className="flex gap-1">
+                                  <button
+                                    onClick={() =>
+                                      handleSaveVolumetricWeight(txn.id)
+                                    }
+                                    className="p-1 text-green-600 hover:bg-green-100 rounded-full"
+                                  >
+                                    <Check className="h-4 w-4" />
+                                  </button>
+                                  <button
+                                    onClick={() =>
+                                      setEditingVolumetricWeightId(null)
+                                    }
+                                    className="p-1 text-red-600 hover:bg-red-100 rounded-full"
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm">
+                                  {txn.volumetricWeight
+                                    ? `${txn.volumetricWeight} ${
+                                        txn.volumetricWeightUnit || "kg"
+                                      }`
+                                    : "N/A"}
+                                </span>
+                                <button
+                                  onClick={() =>
+                                    handleEditVolumetricWeight(txn)
+                                  }
+                                  className="text-gray-400 hover:text-blue-500 p-1"
+                                >
+                                  <Edit className="h-3 w-3" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Weight */}
+                        <div className="border-t pt-3">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm font-medium text-gray-700">
+                              Weight:
+                            </span>
+                            <span className="text-sm">
+                              {txn.weight
+                                ? `${txn.weight} ${txn.weightUnit || "kg"}`
+                                : "N/A"}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="border-t pt-3 flex justify-end gap-2">
+                          {editingId === txn.id ? (
+                            <>
+                              <input
+                                type="number"
+                                value={editAmount}
+                                onChange={(e) => setEditAmount(e.target.value)}
+                                className="w-24 px-3 py-1 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                                min="0"
+                                step="0.01"
+                              />
+                              <button
+                                onClick={() => handleSaveEdit(txn.id)}
+                                className="p-2 rounded-full hover:bg-green-100 text-green-600"
                               >
                                 <Check className="h-4 w-4" />
                               </button>
                               <button
-                                onClick={() =>
-                                  setEditingVolumetricWeightId(null)
-                                }
-                                className="p-1 text-red-600 hover:bg-red-100 rounded-full"
-                                title="Cancel"
+                                onClick={() => setEditingId(null)}
+                                className="p-2 rounded-full hover:bg-red-100 text-red-600"
                               >
                                 <X className="h-4 w-4" />
                               </button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                onClick={() => handleEditClick(txn)}
+                                disabled={txn.status === "completed"}
+                                className={`p-2 rounded-full ${
+                                  txn.status === "completed"
+                                    ? "text-gray-400 cursor-not-allowed"
+                                    : "hover:bg-blue-100 text-blue-600"
+                                }`}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </button>
+                              <button className="p-2 rounded-full hover:bg-gray-100 text-gray-600">
+                                <Eye className="h-4 w-4" />
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="py-16 text-center">
+                  <div className="flex flex-col items-center gap-4">
+                    <Search className="w-8 h-8 text-gray-400" />
+                    <p className="text-gray-900 text-lg">
+                      {error ? "Failed to load" : "No transactions found"}
+                    </p>
+                    <p className="text-gray-500 text-sm">
+                      {error ? "Try again later" : "Adjust search/filters"}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Desktop Table View */}
+            <table className="hidden lg:table w-full">
+              <thead>
+                <tr className="bg-gray-50">
+                  <th className="w-32 px-4 xl:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                    Order ID
+                  </th>
+                  <th className="w-48 px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                    Customer
+                  </th>
+                  <th className="w-24 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                    Amount
+                  </th>
+                  <th className="w-24 px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                    Status
+                  </th>
+                  <th className="w-32 px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                    Date
+                  </th>
+                  <th className="w-32 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                    Dimensions
+                  </th>
+                  <th className="w-40 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                    Volumetric Weight
+                  </th>
+                  <th className="w-24 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                    Weight
+                  </th>
+                  <th className="w-24 px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={9} className="py-16 text-center">
+                      <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mx-auto mb-4"></div>
+                      <span className="text-gray-600">Loading...</span>
+                    </td>
+                  </tr>
+                ) : filteredTransactions.length ? (
+                  filteredTransactions.map((txn, index) => (
+                    <tr
+                      key={txn.id}
+                      className={`hover:bg-blue-50 transition-colors ${
+                        index % 2 ? "bg-gray-50" : "bg-white"
+                      }`}
+                    >
+                      <td className="py-3 px-2 sm:px-3 lg:px-4 xl:px-6">
+                        <div className="min-w-[80px] sm:min-w-[100px]">
+                          <span className="font-mono text-xs sm:text-sm bg-gray-100 px-2 py-1 rounded whitespace-nowrap overflow-hidden text-ellipsis block">
+                            {txn.orderId || "—"}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-2 sm:px-3 lg:px-4 xl:px-6">
+                        <div className="min-w-[80px] sm:min-w-[100px]">
+                          <span className="text-sm sm:text-base text-gray-900 font-medium truncate block">
+                            {txn.customer || "—"}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-2 sm:px-3 lg:px-4 xl:px-6">
+                        <div className="min-w-[80px] sm:min-w-[100px]">
+                          {editingId === txn.id ? (
+                            <div className="flex items-center gap-1 sm:gap-2">
+                              <input
+                                type="number"
+                                value={editAmount}
+                                onChange={(e) => setEditAmount(e.target.value)}
+                                className="w-16 sm:w-20 px-2 py-1 border rounded text-sm focus:ring-2 focus:ring-blue-500"
+                                min="0"
+                                step="0.01"
+                                autoFocus
+                              />
+                              <span className="text-xs text-gray-500 whitespace-nowrap">
+                                ₹
+                              </span>
                             </div>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-2">
-                            <span>
-                              {txn.volumetricWeight
-                                ? `${txn.volumetricWeight} ${
-                                    txn.volumetricWeightUnit || "kg"
-                                  }`
-                                : "N/A"}
-                            </span>
+                          ) : (
+                            <div className="flex items-center gap-1 sm:gap-2">
+                              <span
+                                className={`text-sm sm:text-base font-semibold whitespace-nowrap overflow-hidden text-ellipsis block ${
+                                  txn.type === "refund"
+                                    ? "text-red-600"
+                                    : txn.amount === 0
+                                    ? "text-gray-500 italic"
+                                    : "text-gray-900"
+                                }`}
+                              >
+                                {txn.type === "refund" ? "-" : ""}
+                                {txn.amount === 0
+                                  ? "₹0.00"
+                                  : formatCurrency(txn.amount)}
+                              </span>
+                              <button
+                                onClick={() => handleEditClick(txn)}
+                                className="p-0.5 sm:p-1 rounded-full hover:bg-blue-100 text-blue-600 flex-shrink-0"
+                                title="Edit amount"
+                              >
+                                <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-3 px-2 sm:px-3 lg:px-4 xl:px-6">
+                        <div className="min-w-[80px] sm:min-w-[100px]">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              txn.status === "completed"
+                                ? "bg-green-100 text-green-800"
+                                : txn.status === "pending"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : "bg-red-100 text-red-800"
+                            }`}
+                          >
+                            {txn.status.charAt(0).toUpperCase() +
+                              txn.status.slice(1)}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-2 sm:px-3 lg:px-4 xl:px-6">
+                        <div className="min-w-[80px] sm:min-w-[120px]">
+                          <span className="text-xs sm:text-sm text-gray-600 whitespace-nowrap">
+                            {formatDateTime(txn.date)}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-2 sm:px-3 lg:px-4 xl:px-6">
+                        <div className="min-w-[80px] sm:min-w-[100px]">
+                          {editingDimensionsId === txn.id ? (
+                            <EditDimensions
+                              transactionId={txn.id}
+                              dimensions={txn.dimensions}
+                              onSave={handleUpdateDimensions}
+                              onCancel={() => setEditingDimensionsId(null)}
+                            />
+                          ) : txn.dimensions ? (
+                            <div className="flex gap-1 items-center">
+                              <span className="text-xs sm:text-sm">
+                                {txn.dimensions.width}×{txn.dimensions.height}×
+                                {txn.dimensions.length} {txn.dimensions.unit}
+                              </span>
+                              <button
+                                onClick={() => setEditingDimensionsId(txn.id)}
+                                className="p-0.5 sm:p-1 rounded-full hover:bg-blue-100 text-blue-600 flex-shrink-0"
+                                title="Edit dimensions"
+                              >
+                                <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
+                              </button>
+                            </div>
+                          ) : (
                             <button
-                              onClick={() => handleEditVolumetricWeight(txn)}
-                              className="text-gray-400 hover:text-blue-500"
-                              title="Edit volumetric weight"
+                              onClick={() => setEditingDimensionsId(txn.id)}
+                              className="text-xs text-blue-600 hover:text-blue-800 whitespace-nowrap"
                             >
-                              <Edit className="h-3 w-3" />
+                              Add Dimensions
                             </button>
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </td>
-                      <td className="py-4 px-6">
-                        {txn.weight
-                          ? `${txn.weight} ${txn.weightUnit || "kg"}`
-                          : "N/A"}
+                      <td className="py-3 px-2 sm:px-3 lg:px-4 xl:px-6">
+                        <div className="min-w-[80px] sm:min-w-[100px]">
+                          {editingVolumetricWeightId === txn.id ? (
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="number"
+                                value={editVolumetricWeight.value}
+                                onChange={(e) =>
+                                  setEditVolumetricWeight((prev) => ({
+                                    ...prev,
+                                    value: e.target.value,
+                                  }))
+                                }
+                                className="w-16 sm:w-20 px-2 py-1 border rounded text-sm focus:ring-2 focus:ring-blue-500"
+                                min="0"
+                                step="0.01"
+                                autoFocus
+                              />
+                              <select
+                                value={editVolumetricWeight.unit}
+                                onChange={(e) => {
+                                  setEditVolumetricWeight((prev) => ({
+                                    ...prev,
+                                    unit: e.target.value as WeightUnit,
+                                  }));
+                                }}
+                                className="text-sm border rounded focus:ring-2 focus:ring-blue-500"
+                              >
+                                <option value="kg">kg</option>
+                                <option value="g">g</option>
+                                <option value="lb">lb</option>
+                                <option value="oz">oz</option>
+                              </select>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() =>
+                                    handleSaveVolumetricWeight(txn.id)
+                                  }
+                                  className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    setEditingVolumetricWeightId(null)
+                                  }
+                                  className="px-2 py-1 text-xs bg-white border border-gray-300 text-gray-700 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm">
+                                {txn.volumetricWeight
+                                  ? `${txn.volumetricWeight} ${
+                                      txn.volumetricWeightUnit || "kg"
+                                    }`
+                                  : "N/A"}
+                              </span>
+                              <button
+                                onClick={() => handleEditVolumetricWeight(txn)}
+                                className="text-gray-400 hover:text-blue-500 p-1"
+                                title="Edit volumetric weight"
+                              >
+                                <Edit className="h-3 w-3" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </td>
-                      <td className="py-4 px-6">
+                      <td className="py-4 px-4 xl:px-6">
+                        <span className="text-sm whitespace-nowrap">
+                          {txn.weight
+                            ? `${txn.weight} ${txn.weightUnit || "kg"}`
+                            : "N/A"}
+                        </span>
+                      </td>
+                      <td className="py-4 px-4 xl:px-6">
                         {editingId === txn.id ? (
                           <div className="flex gap-2">
                             <button
@@ -854,7 +1152,7 @@ export default function Transactions() {
           </div>
 
           {/* Footer */}
-          <div className="px-6 py-4 bg-gray-50 border-t flex justify-between items-center">
+          <div className="px-4 sm:px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-2xl flex flex-col sm:flex-row justify-between items-center gap-4">
             <div className="text-sm text-gray-600">
               Showing{" "}
               <span className="font-semibold">
@@ -865,10 +1163,10 @@ export default function Transactions() {
               transactions
             </div>
             <div className="flex gap-2">
-              <button className="px-4 py-2 border rounded-lg hover:bg-gray-50">
+              <button className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm">
                 Previous
               </button>
-              <button className="px-4 py-2 border rounded-lg hover:bg-gray-50">
+              <button className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm">
                 Next
               </button>
             </div>

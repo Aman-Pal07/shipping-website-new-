@@ -82,8 +82,8 @@ export default function Register() {
     }
 
     try {
-      // Create RegisterData object with all documents
-      const registerData = {
+      // Prepare registration data
+      const registrationData = {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
@@ -96,13 +96,14 @@ export default function Register() {
         })),
       };
 
-      console.log("Submitting registration with data:", {
-        email: registerData.email,
-        documentCount: registerData.documents.length,
-        documentTypes: registerData.documents.map((d) => d.documentType),
+      console.log("Submitting registration data:", {
+        email: formData.email,
+        phoneNumber: formData.phoneNumber,
+        documentCount: validDocuments.length,
+        documentTypes: validDocuments.map((d) => d.documentType),
       });
 
-      const result = await dispatch(registerUser(registerData));
+      const result = await dispatch(registerUser(registrationData));
 
       if (registerUser.fulfilled.match(result)) {
         const response = result.payload;

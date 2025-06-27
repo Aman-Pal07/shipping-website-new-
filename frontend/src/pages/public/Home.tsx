@@ -6,6 +6,7 @@ import Testimonials from "./Testimonials";
 import Faq from "./Faq";
 import Services from "./Services";
 import Core from "./Core";
+import Reviews from "./Reviews";
 
 const Home = () => {
   return (
@@ -18,6 +19,7 @@ const Home = () => {
       <GlobalCoverage />
       <Faq />
       <Core />
+      <Reviews />
       <Footer />
     </div>
   );

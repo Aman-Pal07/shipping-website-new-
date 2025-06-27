@@ -31,10 +31,12 @@ const Reviews = () => {
   const fetchReviews = async () => {
     try {
       setIsLoading(true);
-      const { data } = await axios.get<{ data: Review[]; success: boolean }>(`${apiBaseUrl}/reviews`);
-      
+      const { data } = await axios.get<{ data: Review[]; success: boolean }>(
+        `${apiBaseUrl}/reviews`
+      );
+
       if (!data || !Array.isArray(data.data)) {
-        throw new Error('Invalid response format');
+        throw new Error("Invalid response format");
       }
 
       // Filter reviews to only include 4 and 5 star ratings
@@ -49,13 +51,16 @@ const Reviews = () => {
           (acc: number, review: Review) => acc + review.rating,
           0
         );
-        setAverageRating(Number((totalRating / filteredReviews.length).toFixed(1)));
+        setAverageRating(
+          Number((totalRating / filteredReviews.length).toFixed(1))
+        );
       } else {
         setAverageRating(0);
       }
     } catch (error) {
       console.error("Error fetching reviews:", error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to load reviews';
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to load reviews";
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
@@ -78,7 +83,11 @@ const Reviews = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name.trim() || formData.rating === 0 || !formData.comment.trim()) {
+    if (
+      !formData.name.trim() ||
+      formData.rating === 0 ||
+      !formData.comment.trim()
+    ) {
       toast.error("Please fill in all fields");
       return;
     }
@@ -96,13 +105,12 @@ const Reviews = () => {
         setShowForm(false);
         await fetchReviews(); // Refresh the reviews
       } else {
-        throw new Error(data.message || 'Failed to submit review');
+        throw new Error(data.message || "Failed to submit review");
       }
     } catch (error) {
       console.error("Error submitting review:", error);
-      const errorMessage = error instanceof Error 
-        ? error.message 
-        : 'Failed to submit review';
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to submit review";
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
@@ -189,25 +197,6 @@ const Reviews = () => {
             Discover what our valued customers are saying about their
             experiences with us
           </p>
-          {reviews.length > 0 && (
-            <div className="mt-6">
-              <span className="text-2xl font-bold text-gray-700">
-                Average Rating: {averageRating.toFixed(1)}/5
-              </span>
-              <div className="flex justify-center mt-2">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star
-                    key={star}
-                    className={`w-6 h-6 mx-0.5 ${
-                      star <= Math.round(averageRating)
-                        ? 'text-yellow-400 fill-yellow-400'
-                        : 'text-gray-300'
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Reviews Carousel */}
@@ -226,7 +215,10 @@ const Reviews = () => {
                   <div className="text-center transition-opacity duration-500">
                     <div className="bg-white rounded-2xl p-8 shadow-lg border border-blue-100 transform transition-all duration-300 hover:scale-[1.02]">
                       <div className="flex justify-center mb-5">
-                        <div role="img" aria-label={`Rating: ${reviews[currentIndex]?.rating} out of 5`}>
+                        <div
+                          role="img"
+                          aria-label={`Rating: ${reviews[currentIndex]?.rating} out of 5`}
+                        >
                           <StarRating
                             rating={reviews[currentIndex]?.rating || 0}
                           />
