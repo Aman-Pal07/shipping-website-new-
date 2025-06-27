@@ -15,7 +15,6 @@ interface Review {
 const Reviews = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [averageRating, setAverageRating] = useState(0);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState<ReviewFormData>({
     name: "",
@@ -44,19 +43,6 @@ const Reviews = () => {
         (review: Review) => review.rating >= 4
       );
       setReviews(filteredReviews);
-
-      // Calculate average rating for filtered reviews
-      if (filteredReviews.length > 0) {
-        const totalRating = filteredReviews.reduce(
-          (acc: number, review: Review) => acc + review.rating,
-          0
-        );
-        setAverageRating(
-          Number((totalRating / filteredReviews.length).toFixed(1))
-        );
-      } else {
-        setAverageRating(0);
-      }
     } catch (error) {
       console.error("Error fetching reviews:", error);
       const errorMessage =

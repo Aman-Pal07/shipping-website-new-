@@ -245,25 +245,36 @@ const Address = ({ isAdmin = false }: AddressProps) => {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        
+
         {/* Shipment Notice */}
-        {(countryCode === 'cn' || countryCode === 'ca') && (
+        {(countryCode === "cn" || countryCode === "ca") && (
           <div className="mb-6 bg-yellow-50 border-l-4 border-yellow-400 p-4">
             <div className="flex">
               <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                <svg
+                  className="h-5 w-5 text-yellow-400"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </div>
               <div className="ml-3">
                 <p className="text-sm text-yellow-700">
-                  <span className="font-bold">Important:</span> IT IS NECESSARY TO UPLOAD TRACKING IDS FOR {countryCode === 'cn' ? 'CHINA' : 'CANADA'} SHIPMENTS. WITHOUT SHARING THE TRACKING ID, THE SHIPMENT WON'T ARRIVE TO INDIA
+                  <span className="font-bold">Important:</span> IT IS NECESSARY
+                  TO UPLOAD TRACKING IDS FOR{" "}
+                  {countryCode === "cn" ? "CHINA" : "CANADA"} SHIPMENTS. WITHOUT
+                  SHARING THE TRACKING ID, THE SHIPMENT WON'T ARRIVE TO INDIA
                 </p>
               </div>
             </div>
           </div>
         )}
-        
+
         <Card className="overflow-hidden shadow-2xl border-0 bg-white/90 backdrop-blur-sm transform transition-all duration-300 hover:shadow-3xl">
           <CardContent className="p-8">
             <div className="space-y-8">
@@ -304,17 +315,34 @@ const Address = ({ isAdmin = false }: AddressProps) => {
                   </h3>
                 </div>
                 <div className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="bg-white rounded-lg px-4 py-3 shadow-sm space-y-1 transition-all duration-200 hover:shadow-md">
-                      <p className="text-md text-gray-600">
-                        Address Line 1: {currentAddress.addressLine1}
+                  <div className="space-y-4">
+                    {/* Address Line 1 */}
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium text-gray-500 uppercase tracking-wide flex items-center gap-1">
+                        <Building className="w-4 h-4" />
+                        Address Line 1
                       </p>
-                      {currentAddress.addressLine2 && (
-                        <p className="text-md text-gray-600">
-                          Address Line 2: {currentAddress.addressLine2}
+                      <div className="bg-white rounded-lg px-4 py-3 shadow-sm border-l-4 border-blue-500 transition-all duration-200 hover:shadow-md">
+                        <p className="text-md font-medium text-gray-800">
+                          {currentAddress.addressLine1}
                         </p>
-                      )}
+                      </div>
                     </div>
+
+                    {/* Address Line 2 */}
+                    {currentAddress.addressLine2 && (
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium text-gray-500 uppercase tracking-wide flex items-center gap-1">
+                          <Building className="w-4 h-4 opacity-50" />
+                          Address Line 2
+                        </p>
+                        <div className="bg-gray-50 rounded-lg px-4 py-3 shadow-sm border-l-4 border-gray-300 transition-all duration-200 hover:shadow-md">
+                          <p className="text-md text-gray-700">
+                            {currentAddress.addressLine2}
+                          </p>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
