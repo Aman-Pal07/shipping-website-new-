@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Menu,
   X,
@@ -7,7 +7,18 @@ import {
   Mail,
   HelpCircle,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+
+interface NavItem {
+  label: string;
+  href: string;
+  icon?: any;
+  dropdown?: Array<{
+    label: string;
+    href: string;
+    icon?: any;
+    info?: string;
+  }>;
+}
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -20,7 +31,23 @@ const Navigation = () => {
     null
   );
 
-  const navItems = [
+  // Prevent body scroll when menu is open
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.classList.add("overflow-hidden");
+      document.documentElement.classList.add("overflow-hidden");
+    } else {
+      document.body.classList.remove("overflow-hidden");
+      document.documentElement.classList.remove("overflow-hidden");
+    }
+
+    return () => {
+      document.body.classList.remove("overflow-hidden");
+      document.documentElement.classList.remove("overflow-hidden");
+    };
+  }, [isMenuOpen]);
+
+  const navItems: NavItem[] = [
     { label: "About", href: "/about" },
     {
       label: "Services",
@@ -57,7 +84,6 @@ const Navigation = () => {
     { label: "Register", href: "/register" },
   ];
 
-  // Smooth scroll function
   const handleSmoothScroll = (
     e: React.MouseEvent<HTMLElement>,
     href: string
@@ -68,7 +94,7 @@ const Navigation = () => {
       const targetElement = document.getElementById(targetId);
 
       if (targetElement) {
-        const navHeight = 80; // Height of fixed navbar
+        const navHeight = 80;
         const targetPosition = targetElement.offsetTop - navHeight;
 
         window.scrollTo({
@@ -76,58 +102,40 @@ const Navigation = () => {
           behavior: "smooth",
         });
       }
-
-      // Close mobile menu if open
       setIsMenuOpen(false);
     }
   };
 
   const handlePricingMouseEnter = () => {
-    if (pricingTimer) {
-      clearTimeout(pricingTimer);
-      setPricingTimer(null);
-    }
+    if (pricingTimer) clearTimeout(pricingTimer);
     setIsPricingOpen(true);
   };
 
   const handlePricingMouseLeave = () => {
-    const timer = setTimeout(() => {
-      setIsPricingOpen(false);
-    }, 300);
+    const timer = setTimeout(() => setIsPricingOpen(false), 300);
     setPricingTimer(timer);
   };
 
   const handleContactMouseEnter = () => {
-    if (contactTimer) {
-      clearTimeout(contactTimer);
-      setContactTimer(null);
-    }
+    if (contactTimer) clearTimeout(contactTimer);
     setIsContactOpen(true);
   };
 
   const handleContactMouseLeave = () => {
-    const timer = setTimeout(() => {
-      setIsContactOpen(false);
-    }, 300);
+    const timer = setTimeout(() => setIsContactOpen(false), 300);
     setContactTimer(timer);
   };
 
   const handleServicesMouseEnter = () => {
-    if (servicesTimer) {
-      clearTimeout(servicesTimer);
-      setServicesTimer(null);
-    }
+    if (servicesTimer) clearTimeout(servicesTimer);
     setIsServicesOpen(true);
   };
 
   const handleServicesMouseLeave = () => {
-    const timer = setTimeout(() => {
-      setIsServicesOpen(false);
-    }, 300);
+    const timer = setTimeout(() => setIsServicesOpen(false), 300);
     setServicesTimer(timer);
   };
 
-  // Keep dropdown open when hovering over it
   const handleDropdownMouseEnter = (
     type: "pricing" | "contact" | "services"
   ) => {
@@ -155,35 +163,26 @@ const Navigation = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white w-full overflow-x-hidden">
-      {/* Subtle animated background elements */}
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white w-full">
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-10 -left-10 w-40 h-40 bg-blue-50/30 rounded-full blur-3xl animate-pulse"></div>
-        <div
-          className="absolute -top-5 right-1/4 w-32 h-32 bg-blue-100/20 rounded-full blur-2xl animate-pulse"
-          style={{ animationDelay: "2s" }}
-        ></div>
-        <div
-          className="absolute top-0 right-0 w-24 h-24 bg-blue-200/20 rounded-full blur-xl animate-pulse"
-          style={{ animationDelay: "4s" }}
-        ></div>
+        <div className="absolute -top-5 right-1/4 w-32 h-32 bg-blue-100/20 rounded-full blur-2xl animate-pulse"></div>
+        <div className="absolute top-0 right-0 w-24 h-24 bg-blue-200/20 rounded-full blur-xl animate-pulse"></div>
       </div>
 
       <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="flex justify-between items-center h-20">
-          {/* Logo */}
           <div className="group cursor-pointer">
-            <Link to="/">
+            <a href="/">
               <img src="/e2.png" alt="PARCELUP Logo" className="h-16 w-25" />
-            </Link>
+            </a>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
-            {navItems.map((item, index) => (
+            {navItems.map((item) => (
               <div key={item.label} className="relative">
                 {item.dropdown ? (
-                  // Dropdown items (Services, Pricing and Contact)
                   <div
                     className="relative"
                     onMouseEnter={
@@ -203,26 +202,14 @@ const Navigation = () => {
                   >
                     <button
                       className="relative flex items-center px-6 py-3 font-semibold text-blue-700 hover:text-blue-800 hover:bg-blue-50/70 transition-all duration-400 rounded-2xl group"
-                      style={{ animationDelay: `${index * 0.1}s` }}
                       onClick={(e) => handleSmoothScroll(e, item.href)}
                     >
                       <span className="relative z-10 mr-1">{item.label}</span>
-                      <ChevronDown
-                        className={`h-4 w-4 relative z-10 transition-transform duration-300 ${
-                          (item.label === "Pricing" && isPricingOpen) ||
-                          (item.label === "Contact" && isContactOpen) ||
-                          (item.label === "Services" && isServicesOpen)
-                            ? "rotate-180"
-                            : ""
-                        }`}
-                      />
-
-                      {/* Hover effects */}
+                      <ChevronDown className="h-4 w-4 relative z-10 transition-transform duration-300" />
                       <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl scale-0 group-hover:scale-100 transition-all duration-500 origin-center"></div>
                       <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-center rounded-full"></div>
                     </button>
 
-                    {/* Dropdown Menu */}
                     <div
                       className={`absolute top-full left-0 mt-2 w-64 bg-white/95 backdrop-blur-xl border border-blue-200/30 rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 ${
                         (item.label === "Pricing" && isPricingOpen) ||
@@ -249,7 +236,7 @@ const Navigation = () => {
                       }}
                     >
                       <div className="py-2">
-                        {item.dropdown.map((dropdownItem, dropdownIndex) => (
+                        {item.dropdown.map((dropdownItem) => (
                           <a
                             key={dropdownItem.label}
                             href={dropdownItem.href}
@@ -257,9 +244,6 @@ const Navigation = () => {
                               handleSmoothScroll(e, dropdownItem.href)
                             }
                             className="block px-6 py-3 text-blue-700 hover:text-blue-800 hover:bg-blue-50/70 transition-all duration-300 font-medium group relative"
-                            style={{
-                              animationDelay: `${dropdownIndex * 0.1}s`,
-                            }}
                           >
                             <div className="flex items-center">
                               <div>
@@ -275,7 +259,6 @@ const Navigation = () => {
                     </div>
                   </div>
                 ) : (
-                  // Regular nav items
                   <a
                     href={item.href}
                     onClick={(e) => handleSmoothScroll(e, item.href)}
@@ -286,22 +269,18 @@ const Navigation = () => {
                         ? "text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl"
                         : "text-blue-700 hover:text-blue-800 hover:bg-blue-50/70"
                     }`}
-                    style={{ animationDelay: `${index * 0.1}s` }}
                   >
                     <span className="relative z-10 flex items-center">
                       {item.icon && <item.icon className="h-4 w-4 mr-2" />}
                       {item.label}
                     </span>
-
                     {item.label === "Register" ? (
                       <>
-                        {/* Register button hover effects */}
                         <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-blue-800 rounded-2xl scale-0 group-hover:scale-100 transition-all duration-500 origin-center"></div>
                         <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"></div>
                       </>
                     ) : (
                       <>
-                        {/* Login and other buttons hover effects */}
                         <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl scale-0 group-hover:scale-100 transition-all duration-500 origin-center"></div>
                         <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-center rounded-full"></div>
                       </>
@@ -317,6 +296,7 @@ const Navigation = () => {
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="relative p-3 text-blue-700 hover:text-blue-800 transition-all duration-300 group rounded-2xl hover:bg-blue-50/70"
+              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
             >
               <div className="absolute inset-0 bg-blue-100/50 rounded-2xl scale-0 group-hover:scale-100 transition-transform duration-300"></div>
               <div className="relative z-10">
@@ -329,20 +309,27 @@ const Navigation = () => {
             </button>
           </div>
         </div>
+      </div>
 
-        {/* Mobile Navigation */}
+      {/* Mobile Navigation */}
+      <div
+        className={`md:hidden fixed inset-0 bg-black/20 transition-all duration-300 ${
+          isMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={() => setIsMenuOpen(false)}
+      >
         <div
-          className={`md:hidden fixed left-0 right-0 bg-white shadow-lg transition-all duration-300 ${
-            isMenuOpen ? "top-20 opacity-100" : "-top-full opacity-0"
+          className={`absolute left-0 right-0 transition-all duration-300 ${
+            isMenuOpen ? "top-20" : "-top-full"
           }`}
+          onClick={(e) => e.stopPropagation()}
         >
           <div className="bg-white/98 backdrop-blur-xl border border-blue-200/30 rounded-3xl mx-4 shadow-2xl overflow-hidden">
-            <div className="px-6 py-6 space-y-3">
-              {navItems.map((item, index) => (
+            <div className="px-6 py-4 space-y-1 max-h-[calc(100vh-8rem)] overflow-y-auto">
+              {navItems.map((item) => (
                 <div key={item.label}>
                   {item.dropdown ? (
-                    // Mobile dropdown items
-                    <div className="space-y-2">
+                    <div className="space-y-1">
                       <div
                         className="px-6 py-3 font-semibold text-blue-700 rounded-2xl cursor-pointer"
                         onClick={(e) => handleSmoothScroll(e, item.href)}
@@ -369,29 +356,29 @@ const Navigation = () => {
                       ))}
                     </div>
                   ) : (
-                    // Regular mobile nav items
-                    <a
-                      href={item.href}
-                      onClick={(e) => handleSmoothScroll(e, item.href)}
-                      className={`block px-6 py-4 font-semibold rounded-2xl transition-all duration-400 transform hover:translate-x-2 group ${
-                        item.label === "Login"
-                          ? "text-blue-700 hover:text-blue-800 hover:bg-blue-50/70"
-                          : item.label === "Register"
-                          ? "text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-center shadow-lg"
-                          : "text-blue-700 hover:text-blue-800 hover:bg-blue-50/70"
-                      }`}
-                      style={{ animationDelay: `${index * 0.1}s` }}
-                    >
-                      <span className="flex items-center">
-                        {item.icon && <item.icon className="h-4 w-4 mr-2" />}
-                        {item.label}
-                      </span>
-                      {(item.label === "Login" ||
-                        item.label === "About" ||
-                        item.label === "FAQs") && (
-                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-blue-600 scale-y-0 group-hover:scale-y-100 transition-transform duration-300 rounded-r-full"></div>
-                      )}
-                    </a>
+                    <div className="relative">
+                      <a
+                        href={item.href}
+                        onClick={(e) => handleSmoothScroll(e, item.href)}
+                        className={`block px-6 py-3 font-semibold rounded-2xl transition-all duration-400 transform hover:translate-x-2 group ${
+                          item.label === "Login"
+                            ? "text-blue-700 hover:text-blue-800 hover:bg-blue-50/70"
+                            : item.label === "Register"
+                            ? "text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-center shadow-lg"
+                            : "text-blue-700 hover:text-blue-800 hover:bg-blue-50/70"
+                        }`}
+                      >
+                        <span className="flex items-center">
+                          {item.icon && <item.icon className="h-4 w-4 mr-2" />}
+                          {item.label}
+                        </span>
+                        {(item.label === "Login" ||
+                          item.label === "About" ||
+                          item.label === "FAQs") && (
+                          <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-blue-600 scale-y-0 group-hover:scale-y-100 transition-transform duration-300 rounded-r-full"></div>
+                        )}
+                      </a>
+                    </div>
                   )}
                 </div>
               ))}

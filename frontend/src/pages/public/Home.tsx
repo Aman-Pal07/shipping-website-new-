@@ -10,22 +10,19 @@ import Reviews from "./Reviews";
 
 const Home = () => {
   return (
-    <div className="w-screen min-h-screen bg-white overflow-x-hidden flex flex-col">
-      <div className="w-full flex-1 flex flex-col">
-        <Navigation />
-        <main className="flex-1">
-          <HeroSection />
-          {/* <WhyChooseUs /> */}
-          <Core />
-          <Testimonials />
-          <Services />
-          <GlobalCoverage />
-          <Faq />
-          <div className="mb-0">
-            <Reviews />
-          </div>
-        </main>
-      </div>
+    <div className="w-full min-h-screen bg-white flex flex-col">
+      <Navigation />
+      <main className="flex-1 w-full overflow-x-hidden">
+        <HeroSection />
+        <Testimonials />
+        <Services />
+        <Core />
+        <GlobalCoverage />
+        <Faq />
+        <div className="mb-0">
+          <Reviews />
+        </div>
+      </main>
       <Footer />
     </div>
   );

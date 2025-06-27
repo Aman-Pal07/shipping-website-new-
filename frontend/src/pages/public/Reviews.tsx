@@ -177,7 +177,7 @@ const Reviews = () => {
         {/* Header */}
         <div className="text-center mb-4 sm:mb-8 lg:mb-12">
           <h2 className="text-2xl sm:text-3xl lg:text-5xl font-extrabold text-blue-900 tracking-tight px-2">
-            Had a great experience? Share with us!
+            Had a great experience?
           </h2>
           <p className="text-blue-600 text-base sm:text-lg lg:text-xl max-w-3xl mx-auto mt-2 sm:mt-4 leading-relaxed px-4">
             Discover what our valued customers are saying about their
@@ -272,7 +272,7 @@ const Reviews = () => {
 
         {/* Review Form */}
         {showForm && (
-          <div className="max-w-3xl mx-auto bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-10 shadow-2xl border border-blue-100 transition-all duration-300 mx-2 sm:mx-0">
+          <div className="max-w-3xl  bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-10 shadow-2xl border border-blue-100 transition-all duration-300 mx-2 sm:mx-0">
             <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-900 mb-4 sm:mb-6 lg:mb-8 text-center">
               We'd Love Your Feedback!
             </h3>

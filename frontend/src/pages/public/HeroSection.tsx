@@ -1,4 +1,5 @@
 import { Package, Clock, Shield, ArrowRight, Zap, Star } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function Hero() {
   return (
@@ -86,18 +87,22 @@ export default function Hero() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-6">
-              <button className="group relative bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 hover:from-blue-500 hover:via-purple-500 hover:to-cyan-500 text-white px-12 py-6 rounded-3xl font-bold text-lg transition-all duration-500 transform hover:scale-105 shadow-2xl hover:shadow-blue-500/25 flex items-center justify-center space-x-3 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <span className="relative z-10">Start Shipping Now</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-500 relative z-10" />
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-400/0 via-purple-400/20 to-cyan-400/0 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              </button>
+              <Link to="/register">
+                <button className="group relative bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 hover:from-blue-500 hover:via-purple-500 hover:to-cyan-500 text-white px-12 py-6 rounded-3xl font-bold text-lg transition-all duration-500 transform hover:scale-105 shadow-2xl hover:shadow-blue-500/25 flex items-center justify-center space-x-3 overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <span className="relative z-10">Start Shipping Now</span>
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-500 relative z-10" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-400/0 via-purple-400/20 to-cyan-400/0 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                </button>
+              </Link>
+              <Link to="/dashboard/track">
+                <button className="group relative border-2 border-blue-400/50 bg-white/5 backdrop-blur-xl text-blue-400 hover:bg-blue-400/10 hover:text-white px-12 py-6 rounded-3xl font-bold text-lg transition-all duration-500 flex items-center justify-center space-x-3 hover:shadow-2xl hover:shadow-blue-400/20 overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-400/0 via-blue-400/10 to-blue-400/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <Package className="w-5 h-5 group-hover:rotate-12 group-hover:scale-110 transition-transform duration-500 relative z-10" />
 
-              <button className="group relative border-2 border-blue-400/50 bg-white/5 backdrop-blur-xl text-blue-400 hover:bg-blue-400/10 hover:text-white px-12 py-6 rounded-3xl font-bold text-lg transition-all duration-500 flex items-center justify-center space-x-3 hover:shadow-2xl hover:shadow-blue-400/20 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-400/0 via-blue-400/10 to-blue-400/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <Package className="w-5 h-5 group-hover:rotate-12 group-hover:scale-110 transition-transform duration-500 relative z-10" />
-                <span className="relative z-10">Track Package</span>
-              </button>
+                  <span className="relative z-10">Track Package</span>
+                </button>
+              </Link>
             </div>
 
             {/* Enhanced Stats with Glassmorphism */}
