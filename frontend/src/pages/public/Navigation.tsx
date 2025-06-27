@@ -155,7 +155,7 @@ const Navigation = () => {
   };
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 bg-white`}>
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white w-full overflow-x-hidden">
       {/* Subtle animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-10 -left-10 w-40 h-40 bg-blue-50/30 rounded-full blur-3xl animate-pulse"></div>
@@ -169,7 +169,7 @@ const Navigation = () => {
         ></div>
       </div>
 
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 relative">
+      <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <div className="group cursor-pointer">

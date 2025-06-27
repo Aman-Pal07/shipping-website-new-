@@ -61,10 +61,10 @@ const ShippingFeatures = () => {
 
   return (
     <section
-      className="py-16 bg-white relative mt-8"
+      className="w-full py-16 bg-white relative mt-8 overflow-x-hidden"
       aria-label="Shipping Features"
     >
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           className="text-center space-y-8"
           initial={{ opacity: 0, y: 20 }}

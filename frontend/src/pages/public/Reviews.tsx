@@ -135,11 +135,11 @@ const Reviews = () => {
     };
 
     return (
-      <div className="flex space-x-1.5">
+      <div className="flex space-x-1 sm:space-x-1.5">
         {[1, 2, 3, 4, 5].map((star) => (
           <Star
             key={star}
-            className={`w-6 h-6 transition-transform duration-200 transform ${
+            className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-200 transform ${
               star <= rating ? "text-blue-500 fill-blue-500" : "text-gray-300"
             } ${
               interactive
@@ -156,51 +156,51 @@ const Reviews = () => {
   if (isLoading && reviews.length === 0) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-14 w-14 border-t-4 border-b-4 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 sm:h-14 sm:w-14 border-t-4 border-b-4 border-blue-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen py-20 px-4 sm:px-6 lg:px-8">
+    <div className="bg-gray-50 pt-4 sm:pt-8 px-3 sm:px-4 lg:px-8">
       {isLoading && reviews.length > 0 && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
-          <div className="bg-white p-8 rounded-2xl shadow-2xl">
-            <div className="animate-spin rounded-full h-14 w-14 border-t-4 border-b-4 border-blue-500 mx-auto"></div>
-            <p className="mt-4 text-gray-700 font-medium text-lg">
+          <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-2xl mx-4">
+            <div className="animate-spin rounded-full h-12 w-12 sm:h-14 sm:w-14 border-t-4 border-b-4 border-blue-500 mx-auto"></div>
+            <p className="mt-4 text-gray-700 font-medium text-base sm:text-lg text-center">
               Submitting your review...
             </p>
           </div>
         </div>
       )}
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto pb-4 sm:pb-8">
         {/* Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-5xl font-extrabold text-blue-900 tracking-tight">
+        <div className="text-center mb-4 sm:mb-8 lg:mb-12">
+          <h2 className="text-2xl sm:text-3xl lg:text-5xl font-extrabold text-blue-900 tracking-tight px-2">
             Had a great experience? Share with us!
           </h2>
-          <p className="text-blue-600 text-xl max-w-3xl mx-auto mt-4 leading-relaxed">
+          <p className="text-blue-600 text-base sm:text-lg lg:text-xl max-w-3xl mx-auto mt-2 sm:mt-4 leading-relaxed px-4">
             Discover what our valued customers are saying about their
             experiences with us
           </p>
         </div>
 
         {/* Reviews Carousel */}
-        <div className="relative mb-16">
-          <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-3xl p-10 shadow-xl">
-            <div className="flex items-center justify-between mb-8">
+        <div className="relative mb-6 sm:mb-10 lg:mb-14">
+          <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-10 shadow-xl mx-2 sm:mx-0">
+            <div className="flex items-center justify-between mb-4 sm:mb-6 lg:mb-8">
               <button
                 onClick={prevReview}
-                className="p-3 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                className="p-2 sm:p-3 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 touch-manipulation"
               >
-                <ChevronLeft className="w-7 h-7" />
+                <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7" />
               </button>
 
-              <div className="flex-1 mx-10">
+              <div className="flex-1 mx-2 sm:mx-4 lg:mx-10">
                 {reviews.length > 0 && (
                   <div className="text-center transition-opacity duration-500">
-                    <div className="bg-white rounded-2xl p-8 shadow-lg border border-blue-100 transform transition-all duration-300 hover:scale-[1.02]">
-                      <div className="flex justify-center mb-5">
+                    <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-lg border border-blue-100 transform transition-all duration-300 hover:scale-[1.02]">
+                      <div className="flex justify-center mb-3 sm:mb-4 lg:mb-5">
                         <div
                           role="img"
                           aria-label={`Rating: ${reviews[currentIndex]?.rating} out of 5`}
@@ -210,11 +210,11 @@ const Reviews = () => {
                           />
                         </div>
                       </div>
-                      <p className="text-gray-700 text-lg mb-5 leading-relaxed italic">
+                      <p className="text-gray-700 text-sm sm:text-base lg:text-lg mb-3 sm:mb-4 lg:mb-5 leading-relaxed italic px-2">
                         "{reviews[currentIndex]?.comment || "No comment"}"
                       </p>
                       <div className="text-center">
-                        <p className="text-blue-800 font-semibold text-xl">
+                        <p className="text-blue-800 font-semibold text-base sm:text-lg lg:text-xl">
                           {reviews[currentIndex]?.name || "Anonymous"}
                         </p>
                       </div>
@@ -225,14 +225,14 @@ const Reviews = () => {
 
               <button
                 onClick={nextReview}
-                className="p-3 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                className="p-2 sm:p-3 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 touch-manipulation"
               >
-                <ChevronRight className="w-7 h-7" />
+                <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7" />
               </button>
             </div>
 
             {/* Dots indicator */}
-            <div className="flex justify-center space-x-3">
+            <div className="flex justify-center space-x-2 sm:space-x-3">
               {reviews.map((_, index) => (
                 <button
                   key={index}
@@ -240,7 +240,7 @@ const Reviews = () => {
                     setCurrentIndex(index);
                     setIsAutoScrolling(false);
                   }}
-                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition-all duration-300 touch-manipulation ${
                     index === currentIndex
                       ? "bg-blue-500 scale-125"
                       : "bg-blue-300 hover:bg-blue-400"
@@ -252,18 +252,18 @@ const Reviews = () => {
         </div>
 
         {/* Add Review Button */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-4 sm:mb-6 lg:mb-10">
           {showForm ? (
             <button
               onClick={() => setShowForm(false)}
-              className="text-blue-600 hover:text-blue-700 font-medium text-lg hover:underline focus:outline-none"
+              className="text-blue-600 hover:text-blue-700 font-medium text-base sm:text-lg hover:underline focus:outline-none px-4 py-2 touch-manipulation"
             >
               Cancel
             </button>
           ) : (
             <button
               onClick={() => setShowForm(true)}
-              className="text-blue-600 hover:text-blue-700 font-medium text-lg hover:underline focus:outline-none"
+              className="text-blue-600 hover:text-blue-700 font-medium text-base sm:text-lg hover:underline focus:outline-none px-4 py-2 touch-manipulation"
             >
               Share with us
             </button>
@@ -272,14 +272,14 @@ const Reviews = () => {
 
         {/* Review Form */}
         {showForm && (
-          <div className="max-w-3xl mx-auto bg-white rounded-3xl p-10 shadow-2xl border border-blue-100 transition-all duration-300">
-            <h3 className="text-3xl font-bold text-blue-900 mb-8 text-center">
+          <div className="max-w-3xl mx-auto bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-10 shadow-2xl border border-blue-100 transition-all duration-300 mx-2 sm:mx-0">
+            <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-900 mb-4 sm:mb-6 lg:mb-8 text-center">
               We'd Love Your Feedback!
             </h3>
 
-            <div className="space-y-8">
+            <div className="space-y-4 sm:space-y-6 lg:space-y-8">
               <div>
-                <label className="block text-blue-800 font-semibold mb-3 text-lg">
+                <label className="block text-blue-800 font-semibold mb-2 sm:mb-3 text-base sm:text-lg">
                   Your Name
                 </label>
                 <input
@@ -288,14 +288,14 @@ const Reviews = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  className="w-full px-5 py-3 border-2 border-blue-200 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-300 text-gray-700 text-lg"
+                  className="w-full px-3 sm:px-4 lg:px-5 py-2 sm:py-3 border-2 border-blue-200 rounded-lg sm:rounded-xl focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-300 text-gray-700 text-base sm:text-lg"
                   placeholder="Enter your name"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-blue-800 font-semibold mb-3 text-lg">
+                <label className="block text-blue-800 font-semibold mb-2 sm:mb-3 text-base sm:text-lg">
                   Rating
                 </label>
                 <div className="flex justify-center">
@@ -305,13 +305,13 @@ const Reviews = () => {
                     onStarClick={handleStarClick}
                   />
                 </div>
-                <p className="text-center text-blue-600 mt-3 text-sm font-medium">
-                  Click to rate your experience
+                <p className="text-center text-blue-600 mt-2 sm:mt-3 text-xs sm:text-sm font-medium">
+                  Tap to rate your experience
                 </p>
               </div>
 
               <div>
-                <label className="block text-blue-800 font-semibold mb-3 text-lg">
+                <label className="block text-blue-800 font-semibold mb-2 sm:mb-3 text-base sm:text-lg">
                   Your Review
                 </label>
                 <textarea
@@ -322,25 +322,25 @@ const Reviews = () => {
                       comment: e.target.value,
                     }))
                   }
-                  className="w-full px-5 py-3 border-2 border-blue-200 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-300 text-gray-700 text-lg resize-none"
-                  rows={6}
+                  className="w-full px-3 sm:px-4 lg:px-5 py-2 sm:py-3 border-2 border-blue-200 rounded-lg sm:rounded-xl focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-300 text-gray-700 text-base sm:text-lg resize-none"
+                  rows={4}
                   placeholder="Share your experience with us..."
                   required
                 />
               </div>
 
-              <div className="flex space-x-6">
+              <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 lg:space-x-6">
                 <button
                   type="button"
                   onClick={handleSubmit}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl"
+                  className="w-full sm:flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 sm:py-4 rounded-lg sm:rounded-xl font-semibold text-base sm:text-lg transition-all duration-300 shadow-lg hover:shadow-xl touch-manipulation"
                 >
                   Submit Review
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowForm(false)}
-                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-4 rounded-xl font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl"
+                  className="w-full sm:flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 sm:py-4 rounded-lg sm:rounded-xl font-semibold text-base sm:text-lg transition-all duration-300 shadow-lg hover:shadow-xl touch-manipulation"
                 >
                   Cancel
                 </button>
