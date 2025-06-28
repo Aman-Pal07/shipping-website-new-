@@ -32,23 +32,17 @@ export default function Register() {
     phoneNumber: "",
     password: "",
     confirmPassword: "",
-    documents: [
-      { documentType: "PAN Card", file: null, preview: null },
-      { documentType: "Aadhar Card", file: null, preview: null },
-    ],
+    documents: [{ documentType: "PAN Card", file: null, preview: null }],
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Initialize two document fields (run only once)
+  // Initialize single document field (run only once)
   useEffect(() => {
-    if (formData.documents.length !== 2) {
+    if (formData.documents.length !== 1) {
       setFormData((prev) => ({
         ...prev,
-        documents: [
-          { documentType: "PAN Card", file: null, preview: null },
-          { documentType: "Aadhar Card", file: null, preview: null },
-        ],
+        documents: [{ documentType: "Aadhar Card", file: null, preview: null }],
       }));
     }
   }, []);
@@ -67,17 +61,10 @@ export default function Register() {
       return;
     }
 
-    // Check if exactly two documents are uploaded
+    // Check if document is uploaded
     const validDocuments = formData.documents.filter((doc) => doc.file);
-    if (validDocuments.length !== 2) {
-      alert("Please upload exactly two documents");
-      return;
-    }
-
-    // Check if document types are unique
-    const docTypes = formData.documents.map((doc) => doc.documentType);
-    if (new Set(docTypes).size !== docTypes.length) {
-      alert("Document types must be unique");
+    if (validDocuments.length === 0) {
+      alert("Please upload a document");
       return;
     }
 
@@ -138,9 +125,23 @@ export default function Register() {
   ) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      // Validate file size (5MB limit)
-      if (file.size > 5 * 1024 * 1024) {
-        alert("File size must be less than 5MB");
+      // Validate file size (50KB to 500KB)
+      const minSize = 50 * 1024; // 50KB in bytes
+      const maxSize = 500 * 1024; // 500KB in bytes
+
+      if (file.size < minSize) {
+        alert(
+          "File size is too small. Please upload a file between 50KB and 500KB."
+        );
+        e.target.value = ""; // Clear the file input
+        return;
+      }
+
+      if (file.size > maxSize) {
+        alert(
+          "File size is too large. Please reduce the file size to under 500KB and try again."
+        );
+        e.target.value = ""; // Clear the file input
         return;
       }
 
@@ -205,9 +206,8 @@ export default function Register() {
       isFieldValid("email") &&
       isFieldValid("password") &&
       isFieldValid("confirmPassword") &&
-      formData.documents.length === 2 &&
-      formData.documents.every((doc) => doc.file) &&
-      new Set(formData.documents.map((doc) => doc.documentType)).size === 2
+      formData.documents.length === 1 &&
+      formData.documents[0].file !== null
     );
   };
 
@@ -218,7 +218,7 @@ export default function Register() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative"
+      className="min-h-screen flex items-center justify-center py-4 px-4 sm:px-6 lg:px-8 relative"
       style={{
         backgroundImage:
           "url('https://images.unsplash.com/photo-1605732562084-f528a2154616?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTZ8fHNoaXBwaW5nfGVufDB8MXwwfHx8MA%3D%3D')",
@@ -228,33 +228,33 @@ export default function Register() {
       }}
     >
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
-      <div className="relative z-10 max-w-md w-full space-y-8">
+      <div className="relative z-10 max-w-lg w-full space-y-4">
         <div className="text-center">
-          <div className="flex justify-center mb-6">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
-              <LiaTelegramPlane className="h-8 w-8 text-white" />
+          <div className="flex justify-center mb-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+              <LiaTelegramPlane className="h-6 w-6 text-white" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">
+          <h1 className="text-2xl font-bold text-white mb-1">
             Create Your Account
           </h1>
-          <p className="text-white mb-6">
+          <p className="text-white text-sm mb-3">
             Sign up to get started with our platform
           </p>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-3xl shadow-xl p-8 space-y-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-xl p-6 space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm font-medium">
+              <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg text-sm font-medium">
                 {error}
               </div>
             )}
 
-            <div className="space-y-5">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <div className="flex justify-between items-center mb-2">
+                  <div className="flex justify-between items-center mb-1">
                     <label
                       htmlFor="firstName"
                       className="block text-sm font-semibold text-gray-700"
@@ -263,9 +263,7 @@ export default function Register() {
                     </label>
                     {!isFieldValid("firstName") &&
                       formData.firstName.length > 0 && (
-                        <span className="text-xs text-red-500">
-                          First name is required
-                        </span>
+                        <span className="text-xs text-red-500">Required</span>
                       )}
                   </div>
                   <input
@@ -275,17 +273,17 @@ export default function Register() {
                     required
                     value={formData.firstName}
                     onChange={handleChange}
-                    className={`w-full px-4 py-3 border ${
+                    className={`w-full px-3 py-2 border ${
                       formData.firstName.length > 0 &&
                       !isFieldValid("firstName")
                         ? "border-red-500"
                         : "border-gray-300"
-                    } rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200`}
+                    } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200`}
                     placeholder="First name"
                   />
                 </div>
                 <div>
-                  <div className="flex justify-between items-center mb-2">
+                  <div className="flex justify-between items-center mb-1">
                     <label
                       htmlFor="lastName"
                       className="block text-sm font-semibold text-gray-700"
@@ -294,9 +292,7 @@ export default function Register() {
                     </label>
                     {!isFieldValid("lastName") &&
                       formData.lastName.length > 0 && (
-                        <span className="text-xs text-red-500">
-                          Last name is required
-                        </span>
+                        <span className="text-xs text-red-500">Required</span>
                       )}
                   </div>
                   <input
@@ -306,18 +302,46 @@ export default function Register() {
                     required
                     value={formData.lastName}
                     onChange={handleChange}
-                    className={`w-full px-4 py-3 border ${
+                    className={`w-full px-3 py-2 border ${
                       formData.lastName.length > 0 && !isFieldValid("lastName")
                         ? "border-red-500"
                         : "border-gray-300"
-                    } rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200`}
+                    } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200`}
                     placeholder="Last name"
                   />
                 </div>
               </div>
 
               <div>
-                <div className="flex justify-between items-center mb-2">
+                <div className="flex justify-between items-center mb-1">
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-semibold text-gray-700"
+                  >
+                    Email Address <span className="text-red-500">*</span>
+                  </label>
+                  {!isFieldValid("email") && formData.email.length > 0 && (
+                    <span className="text-xs text-red-500">Invalid email</span>
+                  )}
+                </div>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  value={formData.email}
+                  onChange={handleChange}
+                  className={`w-full px-3 py-2 border ${
+                    formData.email.length > 0 && !isFieldValid("email")
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  } rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200`}
+                  placeholder="Enter your email address"
+                />
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-1">
                   <label
                     htmlFor="phoneNumber"
                     className="block text-sm font-semibold text-gray-700"
@@ -327,7 +351,7 @@ export default function Register() {
                   {!isFieldValid("phoneNumber") &&
                     formData.phoneNumber.length > 0 && (
                       <span className="text-xs text-red-500">
-                        Please enter a valid phone number
+                        Invalid phone
                       </span>
                     )}
                 </div>
@@ -338,35 +362,145 @@ export default function Register() {
                   required
                   value={formData.phoneNumber}
                   onChange={handleChange}
-                  className={`w-full px-4 py-3 border ${
+                  className={`w-full px-3 py-2 border ${
                     formData.phoneNumber.length > 0 &&
                     !isFieldValid("phoneNumber")
                       ? "border-red-500"
                       : "border-gray-300"
-                  } rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200`}
+                  } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200`}
                   placeholder="+1234567890"
                   pattern="[+]?[0-9]{10,15}"
                   title="Please enter a valid phone number (10-15 digits, + optional)"
                 />
               </div>
 
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-800">
-                  Upload Documents
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <label
+                      htmlFor="password"
+                      className="block text-sm font-semibold text-gray-700"
+                    >
+                      Password <span className="text-red-500">*</span>
+                    </label>
+                    {!isFieldValid("password") &&
+                      formData.password.length > 0 && (
+                        <span className="text-xs text-red-500">8+ chars</span>
+                      )}
+                  </div>
+                  <div className="relative">
+                    <input
+                      id="password"
+                      name="password"
+                      type={showPassword ? "text" : "password"}
+                      required
+                      value={formData.password}
+                      onChange={handleChange}
+                      className={`w-full px-3 py-2 pr-10 border ${
+                        formData.password.length > 0 &&
+                        !isFieldValid("password")
+                          ? "border-red-500"
+                          : "border-gray-300"
+                      } rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200`}
+                      placeholder="Password"
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <label
+                      htmlFor="confirmPassword"
+                      className="block text-sm font-semibold text-gray-700"
+                    >
+                      Confirm <span className="text-red-500">*</span>
+                    </label>
+                    {!isFieldValid("confirmPassword") &&
+                      formData.confirmPassword.length > 0 && (
+                        <span className="text-xs text-red-500">No match</span>
+                      )}
+                  </div>
+                  <div className="relative">
+                    <input
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      required
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                      className={`w-full px-3 py-2 pr-10 border rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-200 ${
+                        formData.confirmPassword.length > 0 &&
+                        !isFieldValid("confirmPassword")
+                          ? "border-red-500 focus:ring-red-500"
+                          : "border-gray-300 focus:ring-blue-500"
+                      }`}
+                      placeholder="Confirm"
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Password validation indicators */}
+              <div className="flex items-center justify-between text-xs">
+                <div
+                  className={`flex items-center ${
+                    isPasswordValid ? "text-green-600" : "text-gray-400"
+                  }`}
+                >
+                  {isPasswordValid ? (
+                    <Check className="h-3 w-3 mr-1" />
+                  ) : (
+                    <X className="h-3 w-3 mr-1" />
+                  )}
+                  8+ characters
+                </div>
+                {formData.confirmPassword && (
+                  <div
+                    className={`flex items-center ${
+                      passwordsMatch ? "text-green-600" : "text-red-600"
+                    }`}
+                  >
+                    {passwordsMatch ? (
+                      <Check className="h-3 w-3 mr-1" />
+                    ) : (
+                      <X className="h-3 w-3 mr-1" />
+                    )}
+                    Passwords match
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="text-sm font-semibold text-gray-800">
+                  Upload Document <span className="text-red-500">*</span>
                 </h3>
-                <p className="text-sm text-gray-600">
-                  Please upload exactly two different documents for verification
-                </p>
 
                 {formData.documents.map((doc, index) => (
                   <div key={index} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <label className="block text-sm font-medium text-gray-700">
-                        Document {index + 1}{" "}
-                        <span className="text-red-500">*</span>
-                      </label>
-                    </div>
-
                     <select
                       value={doc.documentType}
                       onChange={(e) =>
@@ -378,225 +512,51 @@ export default function Register() {
                             | "Passport"
                         )
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                     >
                       <option value="PAN Card">PAN Card</option>
                       <option value="Aadhar Card">Aadhar Card</option>
                       <option value="Passport">Passport</option>
                     </select>
 
-                    <div className="mt-1">
+                    <div className="flex items-center space-x-3">
                       <input
                         type="file"
                         accept="image/*"
                         onChange={(e) => handleFileChange(index, e)}
-                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                        className="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                       />
-                      {doc.preview ? (
-                        <div className="mt-2 relative">
-                          <img
-                            src={doc.preview}
-                            alt={`Document ${index + 1} preview`}
-                            className="h-20 w-auto object-contain border rounded"
-                          />
-                        </div>
-                      ) : (
-                        <p className="mt-1 text-xs text-red-500">
-                          {!doc.file && "Please upload a document"}
-                        </p>
+                      {doc.preview && (
+                        <img
+                          src={doc.preview}
+                          alt={`Document preview`}
+                          className="h-10 w-10 object-contain border rounded"
+                        />
                       )}
-                      <div className="flex text-sm text-gray-600 justify-center">
-                        <label
-                          htmlFor={`file-upload-${index}`}
-                          className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none"
-                        >
-                          <span>Upload a file</span>
-                          <input
-                            id={`file-upload-${index}`}
-                            name={`document-${index}`}
-                            type="file"
-                            accept="image/*"
-                            className="sr-only"
-                            onChange={(e) => handleFileChange(index, e)}
-                          />
-                        </label>
-                        <p className="pl-1">or drag and drop</p>
-                      </div>
-                      <p className="text-xs text-gray-500">
-                        PNG, JPG, JPEG up to 5MB
-                      </p>
                     </div>
+                    {!doc.file && (
+                      <p className="text-xs text-red-500">
+                        Please upload a document (50KB-500KB)
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
-
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <label
-                    htmlFor="email"
-                    className="block text-sm font-semibold text-gray-700"
-                  >
-                    Email Address <span className="text-red-500">*</span>
-                  </label>
-                  {!isFieldValid("email") && formData.email.length > 0 && (
-                    <span className="text-xs text-red-500">
-                      Please enter a valid email
-                    </span>
-                  )}
-                </div>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-3 border ${
-                    formData.email.length > 0 && !isFieldValid("email")
-                      ? "border-red-500"
-                      : "border-gray-300"
-                  } rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200`}
-                  placeholder="Enter your email address"
-                />
-              </div>
-
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <label
-                    htmlFor="password"
-                    className="block text-sm font-semibold text-gray-700"
-                  >
-                    Password <span className="text-red-500">*</span>
-                  </label>
-                  {!isFieldValid("password") &&
-                    formData.password.length > 0 && (
-                      <span className="text-xs text-red-500">
-                        At least 8 characters
-                      </span>
-                    )}
-                </div>
-                <div className="relative">
-                  <input
-                    id="password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    required
-                    value={formData.password}
-                    onChange={handleChange}
-                    className={`w-full px-4 py-3 pr-12 border ${
-                      formData.password.length > 0 && !isFieldValid("password")
-                        ? "border-red-500"
-                        : "border-gray-300"
-                    } rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200`}
-                    placeholder="Create a password"
-                  />
-                  <button
-                    type="button"
-                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5" />
-                    ) : (
-                      <Eye className="h-5 w-5" />
-                    )}
-                  </button>
-                </div>
-
-                {formData.password && (
-                  <div className="mt-2 space-y-1">
-                    <div
-                      className={`flex items-center text-xs ${
-                        isPasswordValid ? "text-green-600" : "text-gray-500"
-                      }`}
-                    >
-                      {isPasswordValid ? (
-                        <Check className="h-3 w-3 mr-1" />
-                      ) : (
-                        <X className="h-3 w-3 mr-1" />
-                      )}
-                      At least 8 characters
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <label
-                    htmlFor="confirmPassword"
-                    className="block text-sm font-semibold text-gray-700"
-                  >
-                    Confirm Password <span className="text-red-500">*</span>
-                  </label>
-                  {!isFieldValid("confirmPassword") &&
-                    formData.confirmPassword.length > 0 && (
-                      <span className="text-xs text-red-500">
-                        Passwords don't match
-                      </span>
-                    )}
-                </div>
-                <div className="relative">
-                  <input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type={showConfirmPassword ? "text" : "password"}
-                    required
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    className={`w-full px-4 py-3 pr-12 border rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-200 ${
-                      formData.confirmPassword.length > 0 &&
-                      !isFieldValid("confirmPassword")
-                        ? "border-red-500 focus:ring-red-500"
-                        : "border-gray-300 focus:ring-blue-500"
-                    }`}
-                    placeholder="Confirm your password"
-                  />
-                  <button
-                    type="button"
-                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff className="h-5 w-5" />
-                    ) : (
-                      <Eye className="h-5 w-5" />
-                    )}
-                  </button>
-                </div>
-
-                {formData.confirmPassword && !passwordsMatch && (
-                  <div className="mt-2 flex items-center text-xs text-red-600">
-                    <X className="h-3 w-3 mr-1" />
-                    Passwords do not match
-                  </div>
-                )}
-
-                {formData.confirmPassword && passwordsMatch && (
-                  <div className="mt-2 flex items-center text-xs text-green-600">
-                    <Check className="h-3 w-3 mr-1" />
-                    Passwords match
-                  </div>
-                )}
-              </div>
             </div>
 
-            <div className="mt-2 mb-4">
-              <p className="text-sm text-gray-600">
-                <span className="text-red-500">*</span> Indicates required
-                fields
-              </p>
+            <div className="text-xs text-gray-500 text-center">
+              <span className="text-red-500">*</span> Required fields
             </div>
 
             <button
               type="submit"
               disabled={isLoading || !isFormValid()}
-              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-4 rounded-xl font-semibold hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
+              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-2.5 px-4 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center">
                   <svg
-                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -624,12 +584,12 @@ export default function Register() {
           </form>
         </div>
 
-        <div className="text-center space-y-4">
-          <p className="text-white">
+        <div className="text-center space-y-2">
+          <p className="text-white text-sm">
             Already have an account?{" "}
             <Link
               to="/login"
-              className="text-blue-600 hover:text-blue-700 font-semibold"
+              className="text-blue-300 hover:text-blue-200 font-semibold"
             >
               Sign in here
             </Link>
@@ -637,11 +597,11 @@ export default function Register() {
 
           <p className="text-xs text-white">
             By signing up, you agree to our{" "}
-            <Link to="/terms" className="text-blue-600 hover:text-blue-700">
+            <Link to="/terms" className="text-blue-300 hover:text-blue-200">
               Terms of Service
             </Link>{" "}
             and{" "}
-            <Link to="/privacy" className="text-blue-600 hover:text-blue-700">
+            <Link to="/privacy" className="text-blue-300 hover:text-blue-200">
               Privacy Policy
             </Link>
           </p>

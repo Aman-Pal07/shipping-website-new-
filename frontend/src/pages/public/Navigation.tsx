@@ -73,10 +73,10 @@ const Navigation = () => {
     },
     {
       label: "Pricing",
-      href: "/pricing",
+      href: "/",
       dropdown: [
-        { label: "Individual Shipments", href: "/pricing/individual" },
-        { label: "B2B Shipments", href: "/pricing/b2b" },
+        { label: "Individual Shipments", href: "/" },
+        { label: "B2B Shipments", href: "/" },
       ],
     },
     { label: "FAQs", href: "#faqs", icon: HelpCircle },

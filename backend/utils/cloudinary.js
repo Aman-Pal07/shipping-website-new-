@@ -47,34 +47,34 @@ try {
   process.exit(1);
 }
 
-const uploadToCloudinary = async (file) => {
-  if (!file) {
-    throw new Error("No file provided for upload");
+const uploadToCloudinary = async (fileBuffer, options = {}) => {
+  if (!fileBuffer) {
+    throw new Error("No file buffer provided for upload");
   }
 
   try {
     console.log("Starting file upload to Cloudinary...");
-    console.log("File details:", {
-      originalname: file.originalname,
-      mimetype: file.mimetype,
-      size: file.size,
-    });
-
+    
     // Convert buffer to base64
-    const b64 = Buffer.from(file.buffer).toString("base64");
-    const dataURI = `data:${file.mimetype};base64,${b64}`;
+    const b64 = fileBuffer.toString("base64");
+    const dataURI = `data:application/octet-stream;base64,${b64}`;
 
     console.log("Uploading to Cloudinary...");
 
     // Upload to Cloudinary
     const result = await cloudinary.uploader.upload(dataURI, {
-      folder: "user-documents",
-      resource_type: "auto",
+      folder: options.folder || "user-documents",
+      resource_type: options.resource_type || "auto",
       upload_preset: process.env.CLOUDINARY_UPLOAD_PRESET,
     });
 
-    console.log("Upload successful. Secure URL:", result.secure_url);
-    return result.secure_url;
+    console.log("Upload successful. Full result:", {
+      secure_url: result.secure_url,
+      public_id: result.public_id,
+      format: result.format,
+      resource_type: result.resource_type
+    });
+    return result;
   } catch (error) {
     console.error("Error uploading to Cloudinary:", {
       error: error instanceof Error ? error.message : "Unknown error",

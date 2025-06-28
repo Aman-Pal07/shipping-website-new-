@@ -1,21 +1,84 @@
 const { Request, Response } = require("express");
 const multer = require("multer");
 const User = require("../models/User");
+const { promisify } = require("util");
+const fs = require("fs");
+const getFileSize = promisify(fs.stat);
 const { asyncHandler } = require("../middlewares/errorMiddleware");
 const {
   generateVerificationCode,
   sendVerificationEmail,
   sendEmailUpdateVerification,
   sendPasswordResetEmail,
+  sendVerificationCode,
 } = require("../utils/sendEmail");
+
+/**
+ * Resend verification email
+ * @route POST /api/auth/resend-verification
+ */
+const resendVerification = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({
+      success: false,
+      message: "Email is required",
+    });
+  }
+
+  try {
+    // Find user by email
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Check if user is already verified
+    if (user.isVerified) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is already verified",
+      });
+    }
+
+    // Generate new verification code
+    const verificationCode = generateVerificationCode();
+    user.verificationCode = verificationCode;
+    user.verificationCodeExpires = Date.now() + 3600000; // 1 hour
+
+    await user.save();
+
+    // Send verification email
+    await sendVerificationEmail(user.email, verificationCode);
+
+    res.status(200).json({
+      success: true,
+      message: "Verification email sent successfully",
+    });
+  } catch (error) {
+    console.error("Error resending verification email:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to resend verification email",
+    });
+  }
+});
 const { uploadToCloudinary } = require("../utils/cloudinary");
 const crypto = require("crypto");
 
 // Configure multer for file upload
 const storage = multer.memoryStorage();
 const upload = multer({
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit per file
+  storage: storage,
+  limits: { 
+    fileSize: 500 * 1024, // 500KB max file size
+    files: 1 // Allow only 1 file
+  },
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith("image/")) {
       cb(null, true);
@@ -24,6 +87,37 @@ const upload = multer({
     }
   },
 });
+
+// Middleware to validate file size
+const validateFileSize = (req, res, next) => {
+  const minSize = 50 * 1024; // 50KB in bytes
+  const maxSize = 500 * 1024; // 500KB in bytes
+
+  if (!req.file) {
+    return res.status(400).json({
+      success: false,
+      message: "No file uploaded",
+    });
+  }
+
+  if (req.file.size < minSize) {
+    return res.status(400).json({
+      success: false,
+      message:
+        "File size is too small. Please upload a file between 50KB and 500KB.",
+    });
+  }
+
+  if (req.file.size > maxSize) {
+    return res.status(400).json({
+      success: false,
+      message:
+        "File size is too large. Please reduce the file size to under 500KB and try again.",
+    });
+  }
+
+  next();
+};
 
 /**
  * Register a new user
@@ -41,51 +135,34 @@ const registerUser = asyncHandler(async (req, res) => {
 
     const { firstName, lastName, email, password, documentTypes, phoneNumber } = req.body;
 
-    // Handle file uploads
-    const files = req.files?.documents || [];
+    // Handle file upload
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "Please upload a document",
+      });
+    }
 
-    // Parse document types
-    let documentTypesArray = [];
+    // Parse document types from the request
+    let documentType = "Aadhar Card"; // Default
     try {
-      documentTypesArray = Array.isArray(documentTypes)
-        ? documentTypes
-        : documentTypes
-        ? JSON.parse(documentTypes)
-        : [];
-    } catch (e) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid document types format",
-      });
-    }
-
-    // Validate document count
-    if (files.length === 0 || files.length > 2) {
-      return res.status(400).json({
-        success: false,
-        message: "Please upload 1-2 documents",
-      });
-    }
-
-    // Validate document types
-    if (files.length !== documentTypesArray.length) {
-      return res.status(400).json({
-        success: false,
-        message: "Mismatch between number of documents and document types",
-      });
-    }
-
-    // Validate document types
-    const validDocumentTypes = ["PAN Card", "Aadhar Card", "Passport"];
-    for (const doc of documentTypesArray) {
-      if (!validDocumentTypes.includes(doc.documentType)) {
-        return res.status(400).json({
-          success: false,
-          message: `Invalid document type: ${
-            doc.documentType
-          }. Must be one of: ${validDocumentTypes.join(", ")}`,
-        });
+      if (documentTypes) {
+        const docTypes = JSON.parse(documentTypes);
+        if (Array.isArray(docTypes) && docTypes.length > 0 && docTypes[0].documentType) {
+          documentType = docTypes[0].documentType;
+        }
       }
+    } catch (e) {
+      console.error("Error parsing documentTypes:", e);
+    }
+
+    // Validate document type
+    const validDocumentTypes = ["PAN Card", "Aadhar Card", "Passport"];
+    if (!validDocumentTypes.includes(documentType)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid document type. Must be one of: ${validDocumentTypes.join(", ")}`,
+      });
     }
 
     // Validate required fields
@@ -211,52 +288,27 @@ const registerUser = asyncHandler(async (req, res) => {
       });
     }
 
+    let uploadedDocument;
     try {
-      // Upload documents to Cloudinary
-      console.log("Uploading documents to Cloudinary...");
-      const uploadedDocuments = [];
+      // Upload document to Cloudinary
+      console.log("Uploading document to Cloudinary...");
+      const cloudinaryResult = await uploadToCloudinary(req.file.buffer, {
+        folder: "user-documents",
+        resource_type: "auto"
+      });
 
-      if (!req.files || !req.files.documents) {
-        console.error("No files were uploaded");
-        return res.status(400).json({
-          success: false,
-          message: "No documents were uploaded. Please upload 1-2 documents.",
-        });
+      console.log("Cloudinary upload result:", cloudinaryResult);
+
+      if (!cloudinaryResult || !cloudinaryResult.secure_url) {
+        console.error("Invalid Cloudinary response:", cloudinaryResult);
+        throw new Error("Failed to upload document to Cloudinary: Invalid response");
       }
 
-      for (let i = 0; i < files.length; i++) {
-        try {
-          const documentType = documentTypesArray[i]?.documentType;
-          if (!documentType) {
-            throw new Error("Document type is required for each file");
-          }
-          const file = files[i];
-          const documentImageUrl = await uploadToCloudinary(file);
-
-          if (!documentImageUrl) {
-            throw new Error("Failed to upload document to Cloudinary");
-          }
-          uploadedDocuments.push({
-            documentType,
-            documentImage: documentImageUrl,
-            uploadedAt: new Date(),
-          });
-        } catch (error) {
-          console.error("Error uploading document:", error);
-          const errorMessage =
-            error instanceof Error ? error.message : "Unknown error";
-          console.error(`Document upload failed: ${errorMessage}`, error.stack);
-          return res.status(500).json({
-            success: false,
-            message: "Document upload failed",
-            error: errorMessage,
-            stack:
-              process.env.NODE_ENV === "development" ? error.stack : undefined,
-          });
-        }
-      }
-
-      console.log("Documents uploaded to Cloudinary");
+      uploadedDocument = {
+        documentType: documentType,
+        documentImage: cloudinaryResult.secure_url, // Changed from 'url' to 'documentImage' to match model
+        publicId: cloudinaryResult.public_id,
+      };
 
       // Generate verification code
       const verificationCode = generateVerificationCode();
@@ -269,37 +321,39 @@ const registerUser = asyncHandler(async (req, res) => {
         email,
         password, // The password will be hashed by the pre-save hook in the User model
         phoneNumber, // Add phone number to user creation
-        documents: uploadedDocuments,
+        documents: [uploadedDocument],
         role: "user",
-        isVerified: false,
         verificationCode,
         verificationCodeExpires,
+        isVerified: false,
       });
 
-      console.log("Saving user to database...");
-      const savedUser = await user.save();
-      console.log("User saved successfully:", savedUser._id);
+      await user.save();
 
-      // Send verification email in the background
-      sendVerificationEmail(email, verificationCode)
-        .then(() => {
-          console.log("Verification email sent to:", email);
-        })
-        .catch((emailError) => {
-          console.error("Error sending verification email:", emailError);
-          // Log the error but don't fail the request
-        });
+      // Send verification email
+      await sendVerificationEmail(user.email, verificationCode);
 
-      // Return success response
-      return res.status(201).json({
+      console.log("User registered successfully:", {
+        id: user._id,
+        email: user.email,
+      });
+
+      // Create token
+      const token = user.generateAuthToken();
+
+      res.status(201).json({
         success: true,
-        _id: savedUser._id,
-        firstName: savedUser.firstName,
-        lastName: savedUser.lastName,
-        email: savedUser.email,
-        documents: savedUser.documents,
-        message:
-          "Registration successful! Please check your email for verification code.",
+        token,
+        user: {
+          _id: user._id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          phoneNumber: user.phoneNumber,
+          role: user.role,
+          isVerified: user.isVerified,
+          documents: user.documents,
+        },
         requiresVerification: true,
       });
     } catch (error) {
@@ -834,4 +888,6 @@ module.exports = {
   logoutUser,
   forgotPassword,
   resetPassword,
+  validateFileSize,
+  resendVerification,
 };

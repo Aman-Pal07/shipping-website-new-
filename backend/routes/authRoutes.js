@@ -11,18 +11,18 @@ const {
   requestEmailUpdate,
   verifyEmailUpdate,
   forgotPassword,
-  resetPassword
+  resetPassword,
+  resendVerification,
+  validateFileSize
 } = require('../controllers/authController');
 
 const router = express.Router();
 
-// Register a new user (with multiple document uploads)
+// Register a new user (with single document upload)
 router.post(
   "/register",
-  upload.fields([
-    { name: "documents", maxCount: 2 },
-    { name: "documentTypes", maxCount: 1 },
-  ]),
+  upload.single('documents'),
+  validateFileSize,
   registerUser
 );
 
@@ -50,7 +50,10 @@ router.post("/verify-email-update", authenticateToken, verifyEmailUpdate);
 // Forgot password - Send reset link
 router.post("/forgot-password", forgotPassword);
 
+// Resend verification email
+router.post("/resend-verification", resendVerification);
+
 // Reset password with token
-router.put("/reset-password/:resetToken", resetPassword);
+router.post("/reset-password/:token", resetPassword);
 
 module.exports = router;
