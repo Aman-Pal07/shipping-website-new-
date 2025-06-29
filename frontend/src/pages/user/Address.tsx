@@ -336,8 +336,8 @@ const Address = ({ isAdmin = false }: AddressProps) => {
                           <Building className="w-4 h-4 opacity-50" />
                           Address Line 2
                         </p>
-                        <div className="bg-gray-50 rounded-lg px-4 py-3 shadow-sm border-l-4 border-gray-300 transition-all duration-200 hover:shadow-md">
-                          <p className="text-md text-gray-700">
+                        <div className="bg-gray-50 rounded-lg px-4 py-3 shadow-sm border-l-4 border-blue-500 transition-all duration-200 hover:shadow-md">
+                          <p className="text-md font-medium text-gray-800">
                             {currentAddress.addressLine2}
                           </p>
                         </div>

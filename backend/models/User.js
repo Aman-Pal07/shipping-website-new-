@@ -25,23 +25,7 @@ const userSchema = new mongoose.Schema(
       trim: true,
       lowercase: true,
     },
-    documents: [
-      {
-        documentType: {
-          type: String,
-          enum: ["PAN Card", "Aadhar Card", "Passport"],
-          required: true,
-        },
-        documentImage: {
-          type: String,
-          required: true,
-        },
-        uploadedAt: {
-          type: Date,
-          default: Date.now,
-        },
-      },
-    ],
+
     password: {
       type: String,
       required: true,

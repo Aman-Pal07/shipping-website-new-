@@ -460,8 +460,6 @@ export default function Sidebar({ isCollapsed = false }: SidebarProps) {
               >
                 {user?.firstName && user?.lastName
                   ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase()
-                  : user?.username
-                  ? user.username.slice(0, 2).toUpperCase()
                   : user?.email
                   ? user.email[0].toUpperCase()
                   : "US"}
@@ -473,7 +471,12 @@ export default function Sidebar({ isCollapsed = false }: SidebarProps) {
             <>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-gray-900 truncate">
-                  {isLoading ? "Loading..." : user?.firstName || "User"}
+                  {isLoading 
+                    ? "Loading..." 
+                    : user?.firstName && user?.lastName
+                      ? `${user.firstName} ${user.lastName}`
+                      : user?.firstName || (user?.email ? user.email.split('@')[0] : 'User')
+                  }
                 </p>
                 <p className="text-xs text-gray-500 truncate font-medium">
                   {isLoading ? "Loading..." : user?.email || "No email"}

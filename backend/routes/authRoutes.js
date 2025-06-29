@@ -7,24 +7,17 @@ const {
   verifyEmail,
   getCurrentUser,
   logoutUser,
-  upload,
   requestEmailUpdate,
   verifyEmailUpdate,
   forgotPassword,
   resetPassword,
-  resendVerification,
-  validateFileSize
+  resendVerification
 } = require('../controllers/authController');
 
 const router = express.Router();
 
-// Register a new user (with single document upload)
-router.post(
-  "/register",
-  upload.single('documents'),
-  validateFileSize,
-  registerUser
-);
+// Register a new user
+router.post("/register", registerUser);
 
 // Login a user
 router.post("/login", loginUser);
@@ -54,6 +47,6 @@ router.post("/forgot-password", forgotPassword);
 router.post("/resend-verification", resendVerification);
 
 // Reset password with token
-router.post("/reset-password/:token", resetPassword);
+router.put("/reset-password/:resetToken", resetPassword);
 
 module.exports = router;

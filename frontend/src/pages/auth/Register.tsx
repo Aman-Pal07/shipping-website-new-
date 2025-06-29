@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Check, X } from "lucide-react";
@@ -18,11 +18,6 @@ export default function Register() {
     phoneNumber: string;
     password: string;
     confirmPassword: string;
-    documents: Array<{
-      documentType: "PAN Card" | "Aadhar Card" | "Passport";
-      file: File | null;
-      preview: string | null;
-    }>;
   }
 
   const [formData, setFormData] = useState<FormValues>({
@@ -32,20 +27,12 @@ export default function Register() {
     phoneNumber: "",
     password: "",
     confirmPassword: "",
-    documents: [{ documentType: "PAN Card", file: null, preview: null }],
+
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Initialize single document field (run only once)
-  useEffect(() => {
-    if (formData.documents.length !== 1) {
-      setFormData((prev) => ({
-        ...prev,
-        documents: [{ documentType: "Aadhar Card", file: null, preview: null }],
-      }));
-    }
-  }, []);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,12 +48,7 @@ export default function Register() {
       return;
     }
 
-    // Check if document is uploaded
-    const validDocuments = formData.documents.filter((doc) => doc.file);
-    if (validDocuments.length === 0) {
-      alert("Please upload a document");
-      return;
-    }
+
 
     try {
       // Prepare registration data
@@ -75,19 +57,12 @@ export default function Register() {
         lastName: formData.lastName,
         email: formData.email,
         phoneNumber: formData.phoneNumber,
-        password: formData.password,
-        documents: validDocuments.map((doc) => ({
-          documentType: doc.documentType,
-          file: doc.file!,
-          preview: doc.preview || "",
-        })),
+        password: formData.password
       };
 
       console.log("Submitting registration data:", {
         email: formData.email,
         phoneNumber: formData.phoneNumber,
-        documentCount: validDocuments.length,
-        documentTypes: validDocuments.map((d) => d.documentType),
       });
 
       const result = await dispatch(registerUser(registrationData));
@@ -119,63 +94,7 @@ export default function Register() {
     });
   };
 
-  const handleFileChange = (
-    index: number,
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      // Validate file size (50KB to 500KB)
-      const minSize = 50 * 1024; // 50KB in bytes
-      const maxSize = 500 * 1024; // 500KB in bytes
 
-      if (file.size < minSize) {
-        alert(
-          "File size is too small. Please upload a file between 50KB and 500KB."
-        );
-        e.target.value = ""; // Clear the file input
-        return;
-      }
-
-      if (file.size > maxSize) {
-        alert(
-          "File size is too large. Please reduce the file size to under 500KB and try again."
-        );
-        e.target.value = ""; // Clear the file input
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const newDocuments = [...formData.documents];
-        newDocuments[index] = {
-          ...newDocuments[index],
-          file,
-          preview: reader.result as string,
-        };
-        setFormData({
-          ...formData,
-          documents: newDocuments,
-        });
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleDocumentTypeChange = (
-    index: number,
-    value: "PAN Card" | "Aadhar Card" | "Passport"
-  ) => {
-    const newDocuments = [...formData.documents];
-    newDocuments[index] = {
-      ...newDocuments[index],
-      documentType: value,
-    };
-    setFormData({
-      ...formData,
-      documents: newDocuments,
-    });
-  };
 
   const isFieldValid = (field: string) => {
     switch (field) {
@@ -205,9 +124,7 @@ export default function Register() {
       isFieldValid("lastName") &&
       isFieldValid("email") &&
       isFieldValid("password") &&
-      isFieldValid("confirmPassword") &&
-      formData.documents.length === 1 &&
-      formData.documents[0].file !== null
+      isFieldValid("confirmPassword")
     );
   };
 
@@ -494,54 +411,7 @@ export default function Register() {
                 )}
               </div>
 
-              <div className="space-y-2">
-                <h3 className="text-sm font-semibold text-gray-800">
-                  Upload Document <span className="text-red-500">*</span>
-                </h3>
 
-                {formData.documents.map((doc, index) => (
-                  <div key={index} className="space-y-2">
-                    <select
-                      value={doc.documentType}
-                      onChange={(e) =>
-                        handleDocumentTypeChange(
-                          index,
-                          e.target.value as
-                            | "PAN Card"
-                            | "Aadhar Card"
-                            | "Passport"
-                        )
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                    >
-                      <option value="PAN Card">PAN Card</option>
-                      <option value="Aadhar Card">Aadhar Card</option>
-                      <option value="Passport">Passport</option>
-                    </select>
-
-                    <div className="flex items-center space-x-3">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => handleFileChange(index, e)}
-                        className="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                      />
-                      {doc.preview && (
-                        <img
-                          src={doc.preview}
-                          alt={`Document preview`}
-                          className="h-10 w-10 object-contain border rounded"
-                        />
-                      )}
-                    </div>
-                    {!doc.file && (
-                      <p className="text-xs text-red-500">
-                        Please upload a document (50KB-500KB)
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
             </div>
 
             <div className="text-xs text-gray-500 text-center">

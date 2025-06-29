@@ -5,13 +5,12 @@ import { fetchAllUsers } from "../../features/users/userSlice";
 import {
   Search,
   UserPlus,
-  Eye,
   Edit,
   Trash,
   Save,
   Loader2,
 } from "lucide-react";
-import { User, UserDocument } from "@/types/user";
+import { User } from "@/types/user";
 import { Label } from "@/components/ui/label";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -93,10 +92,6 @@ export default function Users() {
       setUsers(reduxUsers);
     }
   }, [reduxUsers]);
-  const [selectedDocument, setSelectedDocument] = useState<{
-    type: string;
-    url: string;
-  } | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -144,18 +139,6 @@ export default function Users() {
     return matchesSearch && matchesRole;
   });
 
-  // Handle document preview
-  const handleDocumentPreview = (
-    documentType: string,
-    documentImage: string
-  ) => {
-    setSelectedDocument({
-      type: documentType,
-      url: documentImage.startsWith("http")
-        ? documentImage
-        : `${process.env.REACT_APP_API_URL}${documentImage}`,
-    });
-  };
 
   const { toast } = useToast();
 
@@ -474,9 +457,7 @@ export default function Users() {
                       <TableHead className="text-left py-4 px-6 font-semibold text-gray-900">
                         Status
                       </TableHead>
-                      <TableHead className="text-left py-4 px-6 font-semibold text-gray-900">
-                        Document
-                      </TableHead>
+
                       <TableHead className="text-left py-4 px-6 font-semibold text-gray-900">
                         Actions
                       </TableHead>
@@ -557,41 +538,7 @@ export default function Users() {
                             </Badge>
                           </TableCell>
 
-                          <TableCell className="py-4 px-6">
-                            {user.documents && user.documents.length > 0 ? (
-                              <div className="space-y-2">
-                                {user.documents?.map(
-                                  (doc: UserDocument, index: number) => (
-                                    <div
-                                      key={index}
-                                      className="flex items-center space-x-2"
-                                    >
-                                      <span className="text-sm text-gray-600">
-                                        {doc.documentType}
-                                      </span>
-                                      <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8"
-                                        onClick={() =>
-                                          handleDocumentPreview(
-                                            doc.documentType,
-                                            doc.documentImage
-                                          )
-                                        }
-                                      >
-                                        <Eye className="h-4 w-4" />
-                                      </Button>
-                                    </div>
-                                  )
-                                )}
-                              </div>
-                            ) : (
-                              <span className="text-sm text-gray-400">
-                                No documents
-                              </span>
-                            )}
-                          </TableCell>
+
 
                           {/* Actions */}
                           <TableCell className="py-4 px-6 text-right">
@@ -695,42 +642,7 @@ export default function Users() {
                             </Badge>
                           </div>
                         </div>
-                        <div className="mb-3">
-                          <p className="text-xs text-gray-500">Documents</p>
-                          {user.documents && user.documents.length > 0 ? (
-                            <div className="space-y-2">
-                              {user.documents?.map(
-                                (doc: UserDocument, index: number) => (
-                                  <div
-                                    key={index}
-                                    className="flex items-center justify-between"
-                                  >
-                                    <span className="text-sm text-gray-600">
-                                      {doc.documentType}
-                                    </span>
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="h-8 w-8"
-                                      onClick={() =>
-                                        handleDocumentPreview(
-                                          doc.documentType,
-                                          doc.documentImage
-                                        )
-                                      }
-                                    >
-                                      <Eye className="h-4 w-4" />
-                                    </Button>
-                                  </div>
-                                )
-                              )}
-                            </div>
-                          ) : (
-                            <span className="text-sm text-gray-400">
-                              No documents
-                            </span>
-                          )}
-                        </div>
+
                         <div className="flex justify-end space-x-2">
                           <Button
                             variant="ghost"
@@ -797,56 +709,7 @@ export default function Users() {
         </Card>
       </div>
 
-      {/* Document Preview Dialog */}
-      <Dialog
-        open={!!selectedDocument}
-        onOpenChange={(open) => !open && setSelectedDocument(null)}
-      >
-        <DialogContent className="max-w-[90vw] sm:max-w-4xl">
-          <DialogHeader>
-            <DialogTitle className="text-lg sm:text-xl">
-              {selectedDocument?.type} Document
-            </DialogTitle>
-            <DialogDescription className="text-sm sm:text-base">
-              Preview of the uploaded document
-            </DialogDescription>
-          </DialogHeader>
-          <div className="mt-4">
-            {selectedDocument?.url ? (
-              <div className="relative w-full h-[50vh] sm:h-[70vh] bg-gray-100 rounded-lg overflow-hidden">
-                <img
-                  src={selectedDocument.url}
-                  alt={`${selectedDocument.type} document`}
-                  className="w-full h-full object-contain"
-                  onError={(e) => {
-                    // Handle image loading errors
-                    const target = e.target as HTMLImageElement;
-                    target.onerror = null;
-                    target.src =
-                      "https://via.placeholder.com/600x400?text=Document+Not+Found";
-                  }}
-                />
-                <div className="absolute bottom-2 sm:bottom-4 right-2 sm:right-4">
-                  <a
-                    href={selectedDocument.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center px-3 sm:px-4 py-1 sm:py-2 bg-white border border-gray-300 rounded-md shadow-sm text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    Open in New Tab
-                  </a>
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center justify-center h-40 bg-gray-100 rounded-lg">
-                <p className="text-gray-500 text-sm">Document not available</p>
-              </div>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Edit User Dialog */}
+{/* Edit User Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-[500px] bg-white">
           <DialogHeader>

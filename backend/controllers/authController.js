@@ -1,5 +1,4 @@
 const { Request, Response } = require("express");
-const multer = require("multer");
 const User = require("../models/User");
 const { promisify } = require("util");
 const fs = require("fs");
@@ -68,56 +67,7 @@ const resendVerification = asyncHandler(async (req, res) => {
     });
   }
 });
-const { uploadToCloudinary } = require("../utils/cloudinary");
 const crypto = require("crypto");
-
-// Configure multer for file upload
-const storage = multer.memoryStorage();
-const upload = multer({
-  storage: storage,
-  limits: { 
-    fileSize: 500 * 1024, // 500KB max file size
-    files: 1 // Allow only 1 file
-  },
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith("image/")) {
-      cb(null, true);
-    } else {
-      cb(new Error("Only image files are allowed"));
-    }
-  },
-});
-
-// Middleware to validate file size
-const validateFileSize = (req, res, next) => {
-  const minSize = 50 * 1024; // 50KB in bytes
-  const maxSize = 500 * 1024; // 500KB in bytes
-
-  if (!req.file) {
-    return res.status(400).json({
-      success: false,
-      message: "No file uploaded",
-    });
-  }
-
-  if (req.file.size < minSize) {
-    return res.status(400).json({
-      success: false,
-      message:
-        "File size is too small. Please upload a file between 50KB and 500KB.",
-    });
-  }
-
-  if (req.file.size > maxSize) {
-    return res.status(400).json({
-      success: false,
-      message:
-        "File size is too large. Please reduce the file size to under 500KB and try again.",
-    });
-  }
-
-  next();
-};
 
 /**
  * Register a new user
@@ -127,46 +77,14 @@ const registerUser = asyncHandler(async (req, res) => {
   console.log("=== Registration Request Received ===");
   console.log("Headers:", JSON.stringify(req.headers, null, 2));
   console.log("Body:", JSON.stringify(req.body, null, 2));
-  console.log("Files:", req.files ? Object.keys(req.files) : "No files");
 
   try {
     console.log("Request body:", req.body);
-    console.log("Request file:", req.file);
-
-    const { firstName, lastName, email, password, documentTypes, phoneNumber } = req.body;
-
-    // Handle file upload
-    if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: "Please upload a document",
-      });
-    }
-
-    // Parse document types from the request
-    let documentType = "Aadhar Card"; // Default
-    try {
-      if (documentTypes) {
-        const docTypes = JSON.parse(documentTypes);
-        if (Array.isArray(docTypes) && docTypes.length > 0 && docTypes[0].documentType) {
-          documentType = docTypes[0].documentType;
-        }
-      }
-    } catch (e) {
-      console.error("Error parsing documentTypes:", e);
-    }
-
-    // Validate document type
-    const validDocumentTypes = ["PAN Card", "Aadhar Card", "Passport"];
-    if (!validDocumentTypes.includes(documentType)) {
-      return res.status(400).json({
-        success: false,
-        message: `Invalid document type. Must be one of: ${validDocumentTypes.join(", ")}`,
-      });
-    }
+    
+    const { firstName, lastName, email, password, phoneNumber } = req.body;
 
     // Validate required fields
-    if (!email || !password || !firstName || !lastName) {
+    if (!email || !password || !firstName || !lastName || !phoneNumber) {
       return res.status(400).json({
         success: false,
         message: "All fields are required",
@@ -182,209 +100,81 @@ const registerUser = asyncHandler(async (req, res) => {
       [...email].map((c) => c.charCodeAt(0))
     );
 
-    try {
-      // Log all users in database for debugging
-      const allUsers = await User.find({}, "email");
-      console.log("\n=== All users in database ===");
-      console.log(`Total users: ${allUsers.length}`);
-      allUsers.forEach((u, i) => {
-        console.log(`User ${i + 1}:`);
-        console.log(`- ID: ${u._id}`);
-        console.log(`- Email: ${u.email}`);
-        console.log(`- Email length: ${u.email?.length || "N/A"}`);
-        console.log(`- Created: ${u.createdAt}`);
-        console.log("---");
-      });
-
-      // Check with exact match
-      const exactMatch = await User.findOne({ email });
-      console.log("\n=== Exact match check ===");
-      console.log("Match found:", exactMatch ? "YES" : "NO");
-
-      if (exactMatch) {
-        const debugInfo = {
-          emailProvided: email,
-          emailInDb: exactMatch.email,
-          matchType: "exact",
-          comparison: email === exactMatch.email ? "exact match" : "different",
-          lengthComparison:
-            email.length === exactMatch.email.length ? "same" : "different",
-          codes: {
-            provided: [...email].map((c) => c.charCodeAt(0)),
-            inDb: [...exactMatch.email].map((c) => c.charCodeAt(0)),
-          },
-          userId: exactMatch._id,
-          userCreatedAt: exactMatch.createdAt,
-        };
-
-        console.log("Debug info:", JSON.stringify(debugInfo, null, 2));
-
-        return res.status(400).json({
-          success: false,
-          message: "A user with this email already exists",
-          error: {
-            message: "Email already registered",
-            details: debugInfo,
-          },
-        });
-      }
-
-      // If no exact match, check case-insensitive
-      const caseInsensitiveMatch = await User.findOne({
-        email: { $regex: new RegExp(`^${email}$`, "i") },
-      });
-
-      console.log("\n=== Case-insensitive check ===");
-      console.log("Match found:", caseInsensitiveMatch ? "YES" : "NO");
-
-      if (caseInsensitiveMatch) {
-        const debugInfo = {
-          emailProvided: email,
-          emailInDb: caseInsensitiveMatch.email,
-          matchType: "case-insensitive",
-          comparison:
-            email.toLowerCase() === caseInsensitiveMatch.email?.toLowerCase()
-              ? "case-insensitive match"
-              : "different",
-          lengthComparison:
-            email.length === caseInsensitiveMatch.email.length
-              ? "same"
-              : "different",
-          codes: {
-            provided: [...email].map((c) => c.charCodeAt(0)),
-            inDb: [...caseInsensitiveMatch.email].map((c) => c.charCodeAt(0)),
-            providedLower: [...email.toLowerCase()].map((c) => c.charCodeAt(0)),
-            inDbLower: [...caseInsensitiveMatch.email.toLowerCase()].map((c) =>
-              c.charCodeAt(0)
-            ),
-          },
-          userId: caseInsensitiveMatch._id,
-          userCreatedAt: caseInsensitiveMatch.createdAt,
-        };
-
-        console.log("Debug info:", JSON.stringify(debugInfo, null, 2));
-
-        return res.status(400).json({
-          success: false,
-          message:
-            "A user with this email already exists (case-insensitive match)",
-          error: {
-            message: "Email already registered",
-            details: debugInfo,
-          },
-        });
-      }
-
-      console.log("\n=== Email Check Result ===");
-      console.log(`No user found with email: ${email}`);
-    } catch (error) {
-      console.error("Error checking for existing user:", error);
-      const errorMessage =
-        error instanceof Error ? error.message : "An unknown error occurred";
-      return res.status(500).json({
+    // Check email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
         success: false,
-        message: "Error checking email existence",
-        error: errorMessage,
+        message: "Please enter a valid email address"
       });
     }
 
-    let uploadedDocument;
-    try {
-      // Upload document to Cloudinary
-      console.log("Uploading document to Cloudinary...");
-      const cloudinaryResult = await uploadToCloudinary(req.file.buffer, {
-        folder: "user-documents",
-        resource_type: "auto"
-      });
-
-      console.log("Cloudinary upload result:", cloudinaryResult);
-
-      if (!cloudinaryResult || !cloudinaryResult.secure_url) {
-        console.error("Invalid Cloudinary response:", cloudinaryResult);
-        throw new Error("Failed to upload document to Cloudinary: Invalid response");
-      }
-
-      uploadedDocument = {
-        documentType: documentType,
-        documentImage: cloudinaryResult.secure_url, // Changed from 'url' to 'documentImage' to match model
-        publicId: cloudinaryResult.public_id,
-      };
-
-      // Generate verification code
-      const verificationCode = generateVerificationCode();
-      const verificationCodeExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
-
-      // Create user with hashed password
-      const user = new User({
-        firstName,
-        lastName,
-        email,
-        password, // The password will be hashed by the pre-save hook in the User model
-        phoneNumber, // Add phone number to user creation
-        documents: [uploadedDocument],
-        role: "user",
-        verificationCode,
-        verificationCodeExpires,
-        isVerified: false,
-      });
-
-      await user.save();
-
-      // Send verification email
-      await sendVerificationEmail(user.email, verificationCode);
-
-      console.log("User registered successfully:", {
-        id: user._id,
-        email: user.email,
-      });
-
-      // Create token
-      const token = user.generateAuthToken();
-
-      res.status(201).json({
-        success: true,
-        token,
-        user: {
-          _id: user._id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          phoneNumber: user.phoneNumber,
-          role: user.role,
-          isVerified: user.isVerified,
-          documents: user.documents,
-        },
-        requiresVerification: true,
-      });
-    } catch (error) {
-      console.error("Error during registration:", error);
-
-      // Handle duplicate key error (e.g., duplicate email)
-      if (error && error.code === 11000) {
-        return res.status(400).json({
-          success: false,
-          message: "Email already exists",
-          error: "A user with this email already exists.",
-        });
-      }
-
-      // Handle validation errors
-      if (error && error.name === "ValidationError" && error.message) {
-        return res.status(400).json({
-          success: false,
-          message: "Validation error",
-          error: String(error.message),
-        });
-      }
-
-      // For all other errors
-      return res.status(500).json({
+    // Check if user exists (case-insensitive)
+    const existingUser = await User.findOne({ 
+      email: { $regex: new RegExp(`^${email}$`, 'i') } 
+    });
+    
+    if (existingUser) {
+      console.log("Registration failed - Email already exists:", email);
+      return res.status(400).json({
         success: false,
-        message: "Registration failed. Please try again.",
-        error:
-          error instanceof Error ? error.message : "An unknown error occurred",
+        message: "Email already exists",
+        error: "A user with this email already exists."
       });
     }
+
+    // Create user
+    const newUser = new User({
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      email: email.toLowerCase().trim(),
+      password,
+      phoneNumber: phoneNumber.trim(),
+      role: "user",
+      isVerified: false
+    });
+    
+    console.log("Creating new user:", {
+      email: newUser.email,
+      firstName: newUser.firstName,
+      lastName: newUser.lastName,
+      phoneNumber: newUser.phoneNumber
+    });
+
+    // Generate verification code
+    const verificationCode = generateVerificationCode();
+    const verificationCodeExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    newUser.verificationCode = verificationCode;
+    newUser.verificationCodeExpires = verificationCodeExpires;
+    
+    await newUser.save();
+
+    // Send verification email
+    await sendVerificationEmail(newUser.email, verificationCode);
+
+    console.log("User registered successfully:", {
+      id: newUser._id,
+      email: newUser.email,
+    });
+
+    // Generate token
+    const token = newUser.generateAuthToken();
+
+    res.status(201).json({
+      success: true,
+      token,
+      user: {
+        _id: newUser._id,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        email: newUser.email,
+        phoneNumber: newUser.phoneNumber,
+        role: newUser.role,
+        isVerified: newUser.isVerified,
+      },
+      requiresVerification: true,
+    });
   } catch (error) {
     console.error("Unexpected error in registerUser:", error);
     return res.status(500).json({
@@ -522,14 +312,21 @@ const loginUser = asyncHandler(async (req, res) => {
   // Generate token
   const token = user.generateAuthToken();
 
+  // Safely get document info if documents array exists and has items
+  const documentInfo = user.documents && user.documents.length > 0 
+    ? {
+        documentType: user.documents[0].documentType,
+        documentImage: user.documents[0].documentImage
+      }
+    : {};
+
   res.status(200).json({
     _id: user._id,
     firstName: user.firstName,
     lastName: user.lastName,
     email: user.email,
     role: user.role,
-    documentType: user.documents[0]?.documentType,
-    documentImage: user.documents[0]?.documentImage,
+    ...documentInfo,  // Spread the document info if it exists
     token,
   });
 });
@@ -539,10 +336,15 @@ const loginUser = asyncHandler(async (req, res) => {
  * @route POST /api/auth/request-email-update
  */
 const requestEmailUpdate = asyncHandler(async (req, res) => {
+  console.log('=== Request Email Update ===');
+  console.log('Request body:', req.body);
+  console.log('Authenticated user ID:', req.user?._id);
+
   const { email } = req.body;
   const userId = req.user?._id;
 
   if (!email || !email.includes("@")) {
+    console.log('Invalid email format:', email);
     return res.status(400).json({
       success: false,
       message: "Please provide a valid email address",
@@ -550,48 +352,79 @@ const requestEmailUpdate = asyncHandler(async (req, res) => {
   }
 
   if (!userId) {
+    console.log('No user ID found in request');
     return res.status(401).json({
       success: false,
       message: "User not authenticated",
     });
   }
 
-  // Check if email is already in use by another user
-  const existingUser = await User.findOne({ email, _id: { $ne: userId } });
-  if (existingUser) {
-    return res.status(400).json({
-      success: false,
-      message: "This email is already in use by another account",
-    });
-  }
-
   try {
+    // Check if email is already in use by another user
+    console.log('Checking if email is already in use:', email);
+    const existingUser = await User.findOne({ email, _id: { $ne: userId } });
+    if (existingUser) {
+      console.log('Email already in use by another account:', email);
+      return res.status(400).json({
+        success: false,
+        message: "This email is already in use by another account",
+      });
+    }
+
     // Generate OTP
     const otp = generateVerificationCode();
     const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes expiry
 
-    // Save OTP to user document
-    await User.findByIdAndUpdate(userId, {
-      emailUpdate: {
-        newEmail: email,
-        otp,
-        otpExpiry,
-      },
-    });
+    console.log('Generated OTP for email update:', { email, otp, otpExpiry });
 
-    // Send verification email
-    await sendEmailUpdateVerification(email, otp);
+    try {
+      // Save OTP to user document
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        {
+          emailUpdate: {
+            newEmail: email,
+            otp,
+            otpExpiry,
+          },
+        },
+        { new: true }
+      );
 
-    res.status(200).json({
-      success: true,
-      message: "Verification code sent to your new email address",
-      expiresIn: "10 minutes",
-    });
+      if (!updatedUser) {
+        console.error('Failed to update user with OTP');
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to process email update request',
+        });
+      }
+
+      console.log('User document updated with OTP');
+
+      // Send verification email
+      console.log('Sending verification email to:', email);
+      await sendEmailUpdateVerification(email, otp);
+      console.log('Verification email sent successfully');
+
+      res.status(200).json({
+        success: true,
+        message: 'Verification code sent to your new email address',
+        expiresIn: '10 minutes',
+      });
+    } catch (emailError) {
+      console.error('Error sending verification email:', emailError);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to send verification email',
+        error: emailError.message,
+      });
+    }
   } catch (error) {
-    console.error("Error in requestEmailUpdate:", error);
+    console.error('Error in requestEmailUpdate:', error);
     res.status(500).json({
       success: false,
-      message: "Failed to process email update request",
+      message: 'Failed to process email update request',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
 });
@@ -821,12 +654,34 @@ const forgotPassword = asyncHandler(async (req, res) => {
  * @access Public
  */
 const resetPassword = asyncHandler(async (req, res) => {
+  console.log('=== Reset Password Request ===');
+  console.log('Reset token:', req.params.resetToken);
+  console.log('Request body:', req.body);
+
   try {
+    if (!req.params.resetToken) {
+      console.error('No reset token provided');
+      return res.status(400).json({
+        success: false,
+        message: 'Reset token is required',
+      });
+    }
+
+    if (!req.body.password) {
+      console.error('No password provided');
+      return res.status(400).json({
+        success: false,
+        message: 'New password is required',
+      });
+    }
+
     // Get hashed token
     const resetPasswordToken = crypto
-      .createHash("sha256")
+      .createHash('sha256')
       .update(req.params.resetToken)
-      .digest("hex");
+      .digest('hex');
+
+    console.log('Hashed token:', resetPasswordToken);
 
     const user = await User.findOne({
       resetPasswordToken,
@@ -834,50 +689,65 @@ const resetPassword = asyncHandler(async (req, res) => {
     });
 
     if (!user) {
-      res.status(400);
-      throw new Error("Invalid or expired reset token");
+      console.error('Invalid or expired reset token');
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired reset token',
+      });
     }
 
-    // Set new password
-    user.password = req.body.password;
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpire = undefined;
+    try {
+      // Set new password
+      user.password = req.body.password;
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpire = undefined;
 
-    await user.save();
+      await user.save();
+      console.log('Password updated for user:', user.email);
 
-    // Generate token
-    const token = user.generateAuthToken();
+      // Generate token
+      const token = user.generateAuthToken();
 
-    // Create HTTP-only cookie with token
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
+      // Create HTTP-only cookie with token
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
 
-    res.status(200).json({
-      success: true,
-      message: "Password updated successfully",
-      token,
-      user: {
-        id: user._id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: user.role,
-        isVerified: user.isVerified,
-      },
-    });
+      res.status(200).json({
+        success: true,
+        message: 'Password updated successfully',
+        token,
+        user: {
+          id: user._id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role,
+          isVerified: user.isVerified,
+        },
+      });
+    } catch (saveError) {
+      console.error('Error saving new password:', saveError);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to update password',
+        error: process.env.NODE_ENV === 'development' ? saveError.message : undefined,
+      });
+    }
   } catch (error) {
-    console.error("Error in resetPassword:", error);
-    res.status(500);
-    throw new Error("Server error");
+    console.error('Error in resetPassword:', error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while resetting password',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
   }
 });
 
 module.exports = {
-  upload,
   registerUser,
   verifyEmail,
   loginUser,
@@ -888,6 +758,5 @@ module.exports = {
   logoutUser,
   forgotPassword,
   resetPassword,
-  validateFileSize,
   resendVerification,
 };

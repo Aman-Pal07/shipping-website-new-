@@ -24,21 +24,18 @@ export const registerUser = createAsyncThunk<AuthResponse, RegisterData>(
   "auth/register",
   async (userData, { rejectWithValue }) => {
     try {
-      // Convert RegisterData to FormData
-      const formData = new FormData();
-      formData.append("firstName", userData.firstName);
-      formData.append("lastName", userData.lastName);
-      formData.append("email", userData.email);
-      formData.append("password", userData.password);
-      
-      // Handle documents array
-      userData.documents.forEach((doc, index) => {
-        formData.append(`documents[${index}][documentType]`, doc.documentType);
-        formData.append(`documents[${index}][file]`, doc.file);
-      });
+      const userPayload = {
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        email: userData.email,
+        phoneNumber: userData.phoneNumber,
+        password: userData.password
+      };
 
-      const response = await authAPI.register(formData);
-      localStorage.setItem("token", response.token);
+      const response = await authAPI.register(userPayload);
+      if (response.token) {
+        localStorage.setItem("token", response.token);
+      }
       return response;
     } catch (error: any) {
       return rejectWithValue(

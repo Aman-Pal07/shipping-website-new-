@@ -75,14 +75,16 @@ export const authAPI = {
     return data;
   },
 
-  // Register new user with file uploads
-  register: async (formData: FormData): Promise<AuthResponse> => {
+  // Register new user
+  register: async (userData: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phoneNumber: string;
+    password: string;
+  }): Promise<AuthResponse> => {
     try {
-      const response = await api.post("/auth/register", formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const response = await api.post("/auth/register", userData);
       
       const data = response.data;
 

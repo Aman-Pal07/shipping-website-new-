@@ -52,7 +52,7 @@ export default function Login() {
       } else if (loginUser.rejected.match(result)) {
         console.error("Login rejected:", result.error);
       }
-      window.location.reload();
+      // window.location.reload();
     } catch (error) {
       console.error("Login error:", error);
     }

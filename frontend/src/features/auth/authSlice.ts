@@ -38,6 +38,12 @@ export const loginUser = createAsyncThunk<AuthResponse, LoginCredentials>(
       localStorage.setItem("token", response.token);
       // Force immediate role recognition
       localStorage.setItem("userRole", response.user.role);
+      
+      // Refresh the page after successful login to ensure all state is properly initialized
+      if (typeof window !== 'undefined') {
+        window.location.reload();
+      }
+      
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Login failed");
@@ -45,39 +51,20 @@ export const loginUser = createAsyncThunk<AuthResponse, LoginCredentials>(
   }
 );
 
-export const registerUser = createAsyncThunk<AuthResponse, RegisterData>(
+export const registerUser = createAsyncThunk<AuthResponse, Omit<RegisterData, 'documents'>>(
   "auth/register",
   async (userData, { rejectWithValue }) => {
     try {
-      // Convert RegisterData to FormData
-      const formData = new FormData();
-      formData.append("firstName", userData.firstName.trim());
-      formData.append("lastName", userData.lastName.trim());
-      formData.append("email", userData.email.trim());
-      formData.append("phoneNumber", userData.phoneNumber.trim());
-      formData.append("password", userData.password);
-
-      // Add document types as JSON
-      const documentTypes = userData.documents.map((doc) => ({
-        documentType: doc.documentType,
-      }));
-      formData.append("documentTypes", JSON.stringify(documentTypes));
-
-      // Add document files
-      userData.documents.forEach((doc) => {
-        if (doc.file) {
-          formData.append("documents", doc.file);
-        }
+      console.log("Sending registration data:", userData);
+      
+      // Make the API call with user data directly
+      const response = await authAPI.register({
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        email: userData.email,
+        phoneNumber: userData.phoneNumber,
+        password: userData.password,
       });
-
-      console.log("Sending registration data:");
-      // Log form data entries
-      for (let pair of (formData as any).entries()) {
-        console.log(pair[0] + ': ', pair[1]);
-      }
-
-      // Make the API call
-      const response = await authAPI.register(formData);
 
       // Only store token if no verification is required
       // If verification is required, the token will be stored after verification
